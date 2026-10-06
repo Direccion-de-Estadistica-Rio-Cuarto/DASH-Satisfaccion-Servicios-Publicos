@@ -1,0 +1,15 @@
+﻿zona_id,zona_nombre,anio,mes,mes_nombre,muestras_total,calles_relevadas,alumbrado_pct_insat,residuos_pct_insat,desmalezado_pct_insat,calles_pct_insat,riego_pct_insat,insatisfaccion_promedio_area,obras_mas_pedidas
+1,Área 1 — Bo. San Martín — Sector 1,2026,1,Enero,49,"Manco Capac, Miguel Ángel, José Verdi, E. Jenner, Lope de Vega, Paul Harris",2,0,16.3,20.4,,9.7,
+2,Área 2 — Bo. San Martín — Sector 2,2026,1,Enero,43,"Juana Azurduy de Padilla, Misiones, S. De La Barrera, E. Jenner, E. Jautz, S. de Thompson, Colombia, Santa Cruz, San Luis, México",11.6,9.3,27.9,53.5,60.5,32.6,
+3,Área 3 — Fray Quirico Porreca (Banda Norte / La Agustina),2026,1,Enero,48,"Fray Quirico Porreca, Laguna Blanca, Av. Marcelo T. de Alvear",6.3,8.3,20.8,37.5,,18.2,"Obras más pedidas por los vecinos: Mantenimiento del arbolado y espacios verdes · Infraestructura vial y urbanismo (pavimentación, cordón cuneta, drenaje, seguridad vial) · Iluminación y seguridad · Espacios públicos y recreación · Servicios públicos y medio ambiente"
+4,Área 4 — Bo. Castelli 1,2026,2,Febrero,33,,9.1,6.1,15.2,54.5,39.4,24.9,"Obras más pedidas por los vecinos: Infraestructura vial y pavimentación (57,6% de las respuestas) · Seguridad ciudadana (18,2%) · Salud y servicios públicos — CGM/Salita (12,1%) · Medio ambiente y espacios públicos (9,1%) · Servicios básicos (3,0%)"
+5,Área 5 — Bo. San Martín — Sector 3,2026,2,Febrero,46,,10.9,10.9,15.2,26.1,21.7,17,
+6,Área 6 — Nueva Argentina,2026,4,Abril,114,,28.9,29.8,65.8,70.2,59.6,50.9,
+7,Área 7 — Jardín (Oeste),2026,5,Mayo,41,,12.2,12.2,29.3,56.1,41.5,30.3,
+8,"Área 8 — Pueblo Alberdi (Mi Lugar, Mi Sueño 2 y 3)",2026,6,Junio,122,,13.9,15.6,40.2,51.6,46.7,33.6,
+9,Área 9 — Goretti,2026,6,Junio,55,,7.3,16.4,50.9,43.6,60,35.6,
+10,Área 10 — San Pantaleón,2026,7,Julio,63,,20.6,0,36.5,61.9,50.8,34,
+11,Área 11 — Quintitas Golf,2026,7,Julio,41,,12.2,12.2,34.1,26.8,48.8,26.8,
+12,Área 12 — Bo. Alem,2026,8,Agosto,78,,0,9,25.6,41,35.9,22.3,
+13,Área 13 — Bo. Jardín Norte,2026,9,Septiembre,95,,24.2,18.9,41.1,44.2,47.4,35.2,
+14,Área 14 — Bo. Industrial,2026,10,Octubre,32,,0,3.1,18.8,28.1,6.3,11.3,

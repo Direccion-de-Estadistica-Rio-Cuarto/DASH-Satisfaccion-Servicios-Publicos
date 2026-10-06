@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa de Satisfacción con los Servicios · Gabinete Social + LMetB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --bg:#ffffff; --bg-alt:#f6f7f9; --ink:#14171a; --ink-soft:#5b6470; --line:#e5e8eb;
+  --brand:#009DE0; --brand-d:#0079ac; --brand-bg:#dbf1fb;
+  --tint-amarillo:#fdf6db;
+  --radius:14px; --shadow:0 1px 2px rgba(20,23,26,.06), 0 1px 12px rgba(20,23,26,.08);
+  --ease-standard:cubic-bezier(.4,0,.2,1);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1216; --bg-alt:#171b21; --ink:#eef1f4; --ink-soft:#a3adb8; --line:#262c34; --brand-bg:#102d39;
+    --tint-amarillo:#3c3310;
+  }
+}
+.material-symbols-outlined{
+  font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;
+  font-size:18px;line-height:1;display:inline-block;vertical-align:-3px;
+  -webkit-font-smoothing:antialiased;
+  font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Google Sans","Product Sans","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.45;
+  display:flex; flex-direction:column; height:100vh; overflow:hidden;
+}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.topbar{flex-shrink:0;position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.topbar .wrap{display:flex;flex-direction:column;align-items:stretch;padding-top:14px;padding-bottom:12px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-bottom:12px}
+.logo img{width:auto;display:block}
+.logo img.logo-gs{height:45px}
+.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+.topnav a{display:flex;align-items:center;font-size:13.5px;font-weight:600;color:var(--ink-soft);text-decoration:none;white-space:nowrap;padding:4px 0;transition:color .2s var(--ease-standard),transform .15s var(--ease-standard)}
+.topnav a:hover{color:var(--brand)}
+.topnav a:active{transform:scale(.96)}
+.topnav a .material-symbols-outlined{font-size:16px;margin-right:4px}
+.metric-select{border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;background:var(--bg-alt);color:var(--ink);cursor:pointer;max-width:260px}
+.metric-hint{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--brand)}
+.app{flex:1;display:flex;min-height:0;position:relative}
+#map{flex:1;min-width:0}
+.leaflet-container{font-family:inherit;background:#eef2f5}
+#panel{
+  width:340px;flex-shrink:0;background:var(--bg);border-left:1px solid var(--line);
+  overflow-y:auto;padding:20px;
+}
+#panel .empty{color:#FF3CB2;font-size:13.5px;font-weight:600;padding-top:8px}
+#panel .empty .material-symbols-outlined{display:block;font-size:32px;margin:0 0 10px;opacity:.7}
+#panel h2{font-size:19px;font-weight:800;margin:0 0 2px;letter-spacing:-.01em}
+#panel .panel-sub{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:16px}
+.panel-hero{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.panel-hero div{background:var(--bg);padding:12px}
+.panel-hero strong{display:block;font-size:20px;font-weight:900}
+.panel-hero span{font-size:11px;color:var(--ink-soft);font-weight:600}
+.cat-block{margin-bottom:14px}
+.cat-chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:4px 10px;border-radius:999px;color:var(--ink);margin-bottom:8px;background:var(--tint-amarillo)}
+.cat-chip .material-symbols-outlined{color:#c99a00}
+.cat-chip .material-symbols-outlined{font-size:13px}
+.stat-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:4px 0;font-size:12.5px}
+.stat-row .label{color:var(--ink-soft);flex:1}
+.stat-row .val{font-weight:800;white-space:nowrap}
+.stat-row .val small{font-weight:400;color:var(--ink-soft);margin-left:4px}
+.no-data-note{font-size:12.5px;color:var(--ink-soft);background:var(--bg-alt);border-radius:10px;padding:12px;margin-top:8px}
+.legend{
+  position:absolute;left:14px;bottom:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;
+  padding:10px 14px;font-size:12px;box-shadow:var(--shadow);z-index:400;max-width:220px
+}
+.legend .legend-title{font-weight:700;margin-bottom:6px;font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em}
+.legend .legend-title .material-symbols-outlined{font-size:14px;vertical-align:-2px;margin-right:4px}
+.stat-row .material-symbols-outlined{font-size:15px;vertical-align:-3px;margin-right:5px}
+.icon-alumbrado{color:#F2C100}
+.icon-residuos{color:#FF3CB2}
+.icon-yuyos{color:#00C96B}
+.icon-calles{color:#F27C00}
+.icon-riego{color:#009DE0}
+.legend-scale{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:4px}
+.legend-scale div{flex:1}
+.legend-labels{display:flex;justify-content:space-between;color:var(--ink-soft);font-size:10.5px}
+.legend-gray{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:var(--ink-soft)}
+.legend-gray i{width:10px;height:10px;border-radius:3px;background:#cbd0d6;display:inline-block}
+@media (max-width:760px){
+  #panel{position:absolute;right:0;top:0;bottom:0;z-index:500;box-shadow:-4px 0 16px rgba(0,0,0,.15)}
+  #panel.hidden{display:none}
+  .app{position:relative}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo">
+      <img class="logo-gs" src="assets/rio-cuarto-vos.png" alt="Río Cuarto Gobierno — VOS, Primero estás vos">
+    </div>
+    <nav class="topnav">
+      <a href="index.html#servicios"><span class="material-symbols-outlined">construction</span>Servicios</a>
+      <a href="index.html#consulta-vecinal"><span class="material-symbols-outlined">forum</span>Consulta Vecinal</a>
+      <a href="index.html"><span class="material-symbols-outlined">arrow_back</span>Volver al tablero</a>
+      <span class="metric-hint">Selecciona un filtro por servicio para visualizar en el mapa</span>
+      <select id="metricSelect" class="metric-select"></select>
+    </nav>
+  </div>
+</header>
+
+<div class="app">
+  <div id="map"></div>
+  <aside id="panel">
+    <div class="empty">
+      <span class="material-symbols-outlined">touch_app</span>
+      Hacé clic en un sector del mapa para ver los indicadores relevados en ese barrio.
+    </div>
+  </aside>
+  <div class="legend" id="legend"></div>
+</div>
+
+<script>
+const SECTORES = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"barrio":"Área 6 — Nueva Argentina","meta":"Abril 2026 · 114 muestras recolectadas","stats":{"muestras":114,"servicios":{"alumbrado":{"pct":28.9,"count":"114 respuestas","rawNote":"Muy bien 29 · Bien 52 · Mal 21 · Muy mal 12"},"basura":{"pct":29.8,"count":"114 respuestas","rawNote":"Muy bien 17 · Bien 63 · Mal 20 · Muy mal 14"},"yuyos":{"pct":65.8,"count":"114 respuestas","rawNote":"Muy bien 4 · Bien 27 · Mal 36 · Muy mal 39 · Ns/Nc 8"},"calle":{"pct":70.2,"count":"114 respuestas","rawNote":"Muy bien 5 · Bien 26 · Mal 33 · Muy mal 47 · Ns/Nc 3"},"riego":{"pct":59.6,"count":"114 respuestas","rawNote":"Muy bien 6 · Bien 32 · Mal 26 · Muy mal 42 · Ns/Nc 8"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3132802,-33.1437982],[-64.3118935,-33.1396165],[-64.311915,-33.1392751],[-64.3119012,-33.1364865],[-64.3116222,-33.1365314],[-64.3116222,-33.1343482],[-64.3116391,-33.1333069],[-64.3130661,-33.1331721],[-64.3129802,-33.132687],[-64.3129051,-33.1320041],[-64.3134738,-33.1318604],[-64.3137849,-33.1317436],[-64.3142248,-33.1316627],[-64.3144715,-33.1316627],[-64.3152655,-33.130899],[-64.3153728,-33.1305666],[-64.315523,-33.1303869],[-64.3155337,-33.1302342],[-64.3162311,-33.1300994],[-64.3169499,-33.1301264],[-64.3211667,-33.1320116],[-64.3214886,-33.1328921],[-64.3211775,-33.1329729],[-64.3239446,-33.1413727],[-64.3132802,-33.1437982]]]}},{"type":"Feature","properties":{"barrio":"Área 7 — Jardín (Oeste)","meta":"Mayo 2026 · 41 muestras recolectadas","stats":{"muestras":41,"servicios":{"alumbrado":{"pct":12.2,"count":"41 respuestas","rawNote":"Muy bien 10 · Bien 26 · Mal 3 · Muy mal 2"},"basura":{"pct":12.2,"count":"41 respuestas","rawNote":"Muy bien 13 · Bien 23 · Mal 5"},"yuyos":{"pct":29.3,"count":"41 respuestas","rawNote":"Muy bien 6 · Bien 22 · Mal 11 · Muy mal 1 · Ns/Nc 1"},"calle":{"pct":56.1,"count":"41 respuestas","rawNote":"Muy bien 4 · Bien 13 · Mal 18 · Muy mal 5 · Ns/Nc 1"},"riego":{"pct":41.5,"count":"41 respuestas","rawNote":"Muy bien 4 · Bien 19 · Mal 10 · Muy mal 7 · Ns/Nc 1"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3236907,-33.1076622],[-64.3258281,-33.1097462],[-64.3252702,-33.1102674],[-64.3248411,-33.1107706],[-64.3242188,-33.1117771],[-64.3239184,-33.1120467],[-64.3237467,-33.1127477],[-64.3234034,-33.1134127],[-64.3218025,-33.1145639],[-64.3186053,-33.1115804],[-64.3236907,-33.1076622]]]}},{"type":"Feature","properties":{"barrio":"Área 8 — Pueblo Alberdi (Mi Lugar, Mi Sueño 2 y 3)","meta":"Junio 2026 · 122 muestras recolectadas","stats":{"muestras":122,"servicios":{"alumbrado":{"pct":13.9,"count":"122 respuestas","rawNote":"Muy bien 39 · Bien 66 · Mal 13 · Muy mal 4"},"basura":{"pct":15.6,"count":"122 respuestas","rawNote":"Muy bien 25 · Bien 77 · Mal 15 · Muy mal 4 · Ns/Nc 1"},"yuyos":{"pct":40.2,"count":"122 respuestas","rawNote":"Muy bien 7 · Bien 60 · Mal 36 · Muy mal 13 · Ns/Nc 6"},"calle":{"pct":51.6,"count":"122 respuestas","rawNote":"Muy bien 13 · Bien 43 · Mal 37 · Muy mal 26 · Ns/Nc 3"},"riego":{"pct":46.7,"count":"122 respuestas","rawNote":"Muy bien 5 · Bien 27 · Mal 25 · Muy mal 32 · Ns/Nc 33"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3229752,-33.1484664],[-64.3208724,-33.1421244],[-64.3284687,-33.1405118],[-64.3292626,-33.1429912],[-64.330078,-33.1427936],[-64.3317036,-33.1479985],[-64.3276159,-33.1488698],[-64.3276052,-33.1475044],[-64.3260217,-33.1478376],[-64.3264294,-33.1491491],[-64.3249059,-33.1494725],[-64.3244768,-33.1481969],[-64.3229752,-33.1484664]]]}},{"type":"Feature","properties":{"barrio":"Área 10 — San Pantaleón","meta":"Julio 2026 · 63 muestras recolectadas","stats":{"muestras":63,"servicios":{"alumbrado":{"pct":20.6,"count":"63 respuestas","rawNote":"Muy bien 14 · Bien 36 · Mal 6 · Muy mal 7"},"basura":{"pct":0,"count":"63 respuestas","rawNote":"Muy bien 31 · Bien 32"},"yuyos":{"pct":36.5,"count":"63 respuestas","rawNote":"Muy bien 7 · Bien 29 · Mal 14 · Muy mal 9 · Ns/Nc 4"},"calle":{"pct":61.9,"count":"63 respuestas","rawNote":"Muy bien 9 · Bien 15 · Mal 24 · Muy mal 15"},"riego":{"pct":50.8,"count":"63 respuestas","rawNote":"Muy bien 3 · Bien 11 · Mal 17 · Muy mal 15 · Ns/Nc 17"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3371823,-33.0924584],[-64.339173,-33.0942137],[-64.3383243,-33.0948599],[-64.3392771,-33.0957465],[-64.3368846,-33.0975868],[-64.3325287,-33.0935152],[-64.3337196,-33.0925984],[-64.3336767,-33.0924905],[-64.3371823,-33.0924584]]]}},{"type":"Feature","properties":{"barrio":"Área 11 — Quintitas Golf","meta":"Julio 2026 · 41 muestras recolectadas","stats":{"muestras":41,"servicios":{"alumbrado":{"pct":12.2,"count":"41 respuestas","rawNote":"Muy bien 19 · Bien 17 · Mal 5"},"basura":{"pct":12.2,"count":"41 respuestas","rawNote":"Muy bien 19 · Bien 17 · Mal 3 · Muy mal 2"},"yuyos":{"pct":34.1,"count":"41 respuestas","rawNote":"Muy bien 7 · Bien 19 · Mal 13 · Muy mal 1 · Ns/Nc 1"},"calle":{"pct":26.8,"count":"41 respuestas","rawNote":"Muy bien 9 · Bien 21 · Mal 9 · Muy mal 2"},"riego":{"pct":48.8,"count":"41 respuestas","rawNote":"Muy bien 6 · Bien 14 · Mal 10 · Muy mal 10 · Ns/Nc 1"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.385961,-33.1142734],[-64.3818112,-33.1152605],[-64.3809402,-33.1127267],[-64.3805325,-33.1114236],[-64.3801409,-33.1099229],[-64.379937,-33.1095364],[-64.3797654,-33.109186],[-64.3787515,-33.106391],[-64.3793148,-33.1062203],[-64.3801355,-33.106018],[-64.3860462,-33.1045422],[-64.3860549,-33.105949],[-64.3859476,-33.10736],[-64.3859369,-33.1077374],[-64.3860657,-33.1081868],[-64.3858833,-33.1082587],[-64.3859476,-33.1085912],[-64.3859745,-33.1092966],[-64.385961,-33.1142734]]]}},{"type":"Feature","properties":{"barrio":"Área 1 — Bo. San Martín — Sector 1","meta":"Enero 2026 · 49 muestras recolectadas · Calles: Manco Capac, Miguel Ángel, José Verdi, E. Jenner, Lope de Vega, Paul Harris","stats":{"muestras":49,"servicios":{"alumbrado":{"pct":2,"count":"49 respuestas","rawNote":"Muy bien 28 · Bien 16 · Regular 4 · Mal 1"},"basura":{"pct":0,"count":"49 respuestas","rawNote":"Muy bien 35 · Bien 13 · Regular 1"},"yuyos":{"pct":16.3,"count":"49 respuestas","rawNote":"Muy bien 18 · Bien 14 · Regular 8 · Mal 8 · Ns/Nc 1"},"calle":{"pct":20.4,"count":"49 respuestas","rawNote":"Muy bien 14 · Bien 7 · Regular 18 · Mal 10"},"riego":null}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3426687,-33.0968538],[-64.3437791,-33.0978694],[-64.3388992,-33.1015123],[-64.3378906,-33.1005417],[-64.3426687,-33.0968538]]]}},{"type":"Feature","properties":{"barrio":"Área 2 — Bo. San Martín — Sector 2","meta":"Enero 2026 · 43 muestras recolectadas · Calles: Juana Azurduy de Padilla, Misiones, S. De La Barrera, E. Jenner, E. Jautz, S. de Thompson, Colombia, Santa Cruz, San Luis, México","stats":{"muestras":43,"servicios":{"alumbrado":{"pct":11.6,"count":"43 respuestas","rawNote":"Muy bien 20 · Bien 18 · Mal 5"},"basura":{"pct":9.3,"count":"43 respuestas","rawNote":"Muy bien 21 · Bien 18 · Mal 4"},"yuyos":{"pct":27.9,"count":"43 respuestas","rawNote":"Muy bien 5 · Bien 12 · Regular 13 · Mal 12 · Ns/Nc 1"},"calle":{"pct":53.5,"count":"43 respuestas","rawNote":"Muy bien 2 · Bien 7 · Regular 11 · Mal 23"},"riego":{"pct":60.5,"count":"43 respuestas","rawNote":"Muy bien 3 · Bien 7 · Regular 7 · Mal 26"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3279101,-33.1116462],[-64.3258066,-33.1097102],[-64.3282319,-33.1078537],[-64.3278242,-33.1074583],[-64.3284251,-33.1070269],[-64.3266012,-33.1053913],[-64.3278672,-33.1044386],[-64.3296267,-33.1061462],[-64.3302275,-33.1056609],[-64.3316866,-33.1070449],[-64.3292619,-33.1088783],[-64.3303777,-33.1099027],[-64.3279101,-33.1116462]]]}},{"type":"Feature","properties":{"barrio":"Área 3 — Fray Quirico Porreca (Banda Norte / La Agustina)","meta":"Enero 2026 · 48 muestras recolectadas · Calles: Fray Quirico Porreca, Laguna Blanca, Av. Marcelo T. de Alvear","stats":{"muestras":48,"servicios":{"alumbrado":{"pct":6.3,"count":"sobre encuestados","rawNote":"Muy bien 25.0% · Bien 56.3% · Regular 10.4% · Mal 6.3% · Ns/Nc 2.1%"},"basura":{"pct":8.3,"count":"sobre encuestados","rawNote":"Muy bien 20.8% · Bien 54.2% · Regular 16.7% · Mal 8.3%"},"yuyos":{"pct":20.8,"count":"sobre encuestados","rawNote":"Muy bien 4.2% · Bien 33.3% · Regular 25.0% · Mal 20.8% · Ns/Nc 16.7%"},"calle":{"pct":37.5,"count":"sobre encuestados","rawNote":"Muy bien 2.1% · Bien 22.9% · Regular 37.5% · Mal 37.5%"},"riego":null}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3263347,-33.1183337],[-64.339542,-33.1083467],[-64.3397566,-33.1085084],[-64.3264529,-33.1185552],[-64.3263347,-33.1183337]]]}},{"type":"Feature","properties":{"barrio":"Área 4 — Bo. Castelli 1","meta":"Febrero 2026 · 33 muestras recolectadas","stats":{"muestras":33,"servicios":{"alumbrado":{"pct":9.1,"count":"sobre encuestados","rawNote":"Muy bien 33.3% · Bien 51.5% · Regular 6.1% · Mal 9.1%"},"basura":{"pct":6.1,"count":"sobre encuestados","rawNote":"Muy bien 24.2% · Bien 60.6% · Regular 9.1% · Mal 6.1%"},"yuyos":{"pct":15.2,"count":"sobre encuestados","rawNote":"Muy bien 3.0% · Bien 54.5% · Regular 27.3% · Mal 15.2%"},"calle":{"pct":54.5,"count":"sobre encuestados","rawNote":"Muy bien 3.0% · Bien 12.1% · Regular 27.3% · Mal 54.5% · Ns/Nc 3.1%"},"riego":{"pct":39.4,"count":"sobre encuestados","rawNote":"Muy bien 3.1% · Bien 24.2% · Regular 33.3% · Mal 39.4%"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3791223,-33.1441295],[-64.3750454,-33.1422609],[-64.3760324,-33.1408775],[-64.3758608,-33.1402486],[-64.3765474,-33.140069],[-64.3771268,-33.1391347],[-64.3779851,-33.138955],[-64.3821145,-33.1408592],[-64.380076,-33.1440034],[-64.3791223,-33.1441295]]]}},{"type":"Feature","properties":{"barrio":"Área 5 — Bo. San Martín — Sector 3","meta":"Febrero 2026 · muestras no especificadas","stats":{"muestras":null,"servicios":{"alumbrado":{"pct":10.9,"count":"sobre encuestados","rawNote":"Muy bien 21.7% · Bien 41.3% · Regular 23.9% · Mal 10.9% · Ns/Nc 2.2%"},"basura":{"pct":10.9,"count":"sobre encuestados","rawNote":"Muy bien 26.1% · Bien 23.9% · Regular 37.0% · Mal 10.9% · Ns/Nc 2.2%"},"yuyos":{"pct":15.2,"count":"sobre encuestados","rawNote":"Muy bien 6.5% · Bien 23.9% · Regular 52.2% · Mal 15.2% · Ns/Nc 2.2%"},"calle":{"pct":26.1,"count":"sobre encuestados","rawNote":"Muy bien 6.5% · Bien 19.6% · Regular 47.8% · Mal 26.1%"},"riego":{"pct":21.7,"count":"sobre encuestados","rawNote":"Muy bien 10.9% · Bien 13.0% · Regular 52.2% · Mal 21.7% · Ns/Nc 2.2%"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.335819,-33.1148651],[-64.3360336,-33.1150449],[-64.3287165,-33.12067],[-64.3285234,-33.1204364],[-64.335819,-33.1148651]]]}},{"type":"Feature","properties":{"barrio":"Área 9 — Goretti","meta":"Junio 2026 · 55 muestras recolectadas","stats":{"muestras":55,"servicios":{"alumbrado":{"pct":7.3,"count":"55 respuestas","rawNote":"Muy bien 19 · Bien 32 · Mal 4"},"basura":{"pct":16.4,"count":"55 respuestas","rawNote":"Muy bien 15 · Bien 31 · Mal 8 · Muy mal 1"},"yuyos":{"pct":50.9,"count":"55 respuestas","rawNote":"Muy bien 6 · Bien 19 · Mal 21 · Muy mal 7 · Ns/Nc 2"},"calle":{"pct":43.6,"count":"55 respuestas","rawNote":"Muy bien 5 · Bien 26 · Mal 22 · Muy mal 2"},"riego":{"pct":60,"count":"55 respuestas","rawNote":"Muy bien 7 · Bien 14 · Mal 21 · Muy mal 12 · Ns/Nc 1"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3735153,-33.1483422],[-64.378849,-33.1472081],[-64.3835804,-33.1461661],[-64.3835375,-33.1534061],[-64.3833444,-33.1538193],[-64.3826363,-33.1546097],[-64.3753407,-33.1544481],[-64.3735153,-33.1483422]]]}}]};
+const fmtN = n => (n==null ? '—' : n.toLocaleString('es-AR'));
+const fmtPct = v => (v==null ? 's/d' : v.toFixed(1)+'%');
+
+const METRICS = [
+  { key: 'muestras', label: 'Muestras recolectadas', icon: 'fact_check', iconCls: '', get: s => s.muestras, isPct: false },
+  { key: 'serv-alumbrado', label: 'Alumbrado público (mal o muy mal)', icon: 'table_lamp', iconCls: 'icon-alumbrado', get: s => s.servicios.alumbrado ? s.servicios.alumbrado.pct : null, isPct: true },
+  { key: 'serv-basura', label: 'Recolección de residuos (mal o muy mal)', icon: 'delete_sweep', iconCls: 'icon-residuos', get: s => s.servicios.basura ? s.servicios.basura.pct : null, isPct: true },
+  { key: 'serv-yuyos', label: 'Limpieza de baldíos / yuyos (mal o muy mal)', icon: 'grass', iconCls: 'icon-yuyos', get: s => s.servicios.yuyos ? s.servicios.yuyos.pct : null, isPct: true },
+  { key: 'serv-calle', label: 'Estado de calles (mal o muy mal)', icon: 'unpaved_road', iconCls: 'icon-calles', get: s => s.servicios.calle ? s.servicios.calle.pct : null, isPct: true },
+  { key: 'serv-riego', label: 'Riego y desagües (mal o muy mal)', icon: 'water', iconCls: 'icon-riego', get: s => s.servicios.riego ? s.servicios.riego.pct : null, isPct: true },
+];
+
+const sel = document.getElementById('metricSelect');
+METRICS.forEach(m => {
+  const opt = document.createElement('option');
+  opt.value = m.key; opt.textContent = m.label;
+  sel.appendChild(opt);
+});
+
+function lerp(a,b,t){ return Math.round(a+(b-a)*t); }
+function lerpColor(hex1,hex2,t){
+  const c1=[1,3,5].map(i=>parseInt(hex1.slice(i,i+2),16));
+  const c2=[1,3,5].map(i=>parseInt(hex2.slice(i,i+2),16));
+  const c=c1.map((v,i)=>lerp(v,c2[i],t));
+  return 'rgb('+c.join(',')+')';
+}
+
+let currentMetric = METRICS[0];
+
+function colorFor(value, min, max){
+  if(value==null) return '#cbd0d6';
+  const t = max>min ? (value-min)/(max-min) : 0.5;
+  return lerpColor('#dbf1fb', '#009DE0', Math.max(0,Math.min(1,t)));
+}
+
+function renderLegend(min, max){
+  const steps = 5;
+  const bars = [];
+  for(let i=0;i<steps;i++){
+    bars.push('<div style="background:'+colorFor(min+(max-min)*i/(steps-1), min, max)+'"></div>');
+  }
+  document.getElementById('legend').innerHTML =
+    '<div class="legend-title"><span class="material-symbols-outlined '+currentMetric.iconCls+'">'+currentMetric.icon+'</span>'+currentMetric.label+'</div>'+
+    '<div class="legend-scale">'+bars.join('')+'</div>'+
+    '<div class="legend-labels"><span>'+(currentMetric.isPct? min.toFixed(0)+'%' : fmtN(Math.round(min)))+'</span><span>'+(currentMetric.isPct? max.toFixed(0)+'%' : fmtN(Math.round(max)))+'</span></div>'+
+    '<div class="legend-gray"><i></i> Sin dato para esta métrica</div>';
+}
+
+let geoLayer;
+const map = L.map('map', { zoomControl: true }).setView([-33.125, -64.35], 13);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  maxZoom: 19,
+}).addTo(map);
+
+function styleFor(feature){
+  const stats = feature.properties.stats;
+  const value = stats ? currentMetric.get(stats) : null;
+  return {
+    fillColor: colorFor(value, currentMetric._min, currentMetric._max),
+    fillOpacity: stats ? 0.72 : 0.35,
+    color: stats ? '#0079ac' : '#8a919a',
+    weight: 1.4,
+    opacity: 0.9,
+  };
+}
+
+function computeMinMax(metric){
+  const values = SECTORES.features
+    .map(f => f.properties.stats ? metric.get(f.properties.stats) : null)
+    .filter(v => v != null);
+  metric._min = values.length ? Math.min(...values) : 0;
+  metric._max = values.length ? Math.max(...values) : 1;
+}
+
+function categoryBlock(chipClass, icon, title, rows){
+  return '<div class="cat-block">'+
+    '<span class="cat-chip '+chipClass+'"><span class="material-symbols-outlined">'+icon+'</span>'+title+'</span>'+
+    rows.map(([label,val,extra,rowIcon,rowIconCls]) => (
+      '<div class="stat-row"><span class="label">'+(rowIcon ? '<span class="material-symbols-outlined '+(rowIconCls||'')+'">'+rowIcon+'</span>' : '')+label+'</span><span class="val">'+val+(extra ? ' <small>('+extra+')</small>' : '')+'</span></div>'
+    )).join('') +
+  '</div>';
+}
+
+function statBlocksHTML(props){
+  const s = props.stats;
+  const items = [
+    ['Alumbrado público', s.servicios.alumbrado, 'table_lamp', 'icon-alumbrado'],
+    ['Recolección de residuos', s.servicios.basura, 'delete_sweep', 'icon-residuos'],
+    ['Limpieza de baldíos / yuyos', s.servicios.yuyos, 'grass', 'icon-yuyos'],
+    ['Estado de calles', s.servicios.calle, 'unpaved_road', 'icon-calles'],
+    ['Riego y desagües', s.servicios.riego, 'water', 'icon-riego'],
+  ];
+  const withData = items.filter(([,v]) => v && v.pct != null);
+  const avg = withData.length ? withData.reduce((sum,[,v]) => sum+v.pct, 0)/withData.length : null;
+  return '<div class="panel-hero">'+
+      '<div><strong>'+(s.muestras!=null ? fmtN(s.muestras) : 's/d')+'</strong><span>muestras recolectadas</span></div>'+
+      '<div><strong>'+(avg!=null ? fmtPct(avg) : 's/d')+'</strong><span>calificación negativa promedio</span></div>'+
+    '</div>'+
+    categoryBlock('tint-amarillo','construction','Servicios urbanos',
+      items.map(([label,v,icon,iconCls]) => [label, v ? fmtPct(v.pct) : 's/d', v ? v.count : null, icon, iconCls])
+    );
+}
+
+function renderPanel(feature){
+  const panel = document.getElementById('panel');
+  const props = feature.properties;
+  if(!props.stats){
+    panel.innerHTML =
+      '<h2>'+props.barrio+'</h2>'+
+      '<div class="panel-sub">Sector vectorizado sin datos de relevamiento</div>'+
+      '<div class="no-data-note">Este sector no tiene datos de Consulta Vecinal asociados.</div>';
+    return;
+  }
+  panel.innerHTML =
+    '<h2>'+props.barrio+'</h2>'+
+    '<div class="panel-sub">'+props.meta+'</div>'+
+    statBlocksHTML(props);
+}
+
+function redraw(){
+  computeMinMax(currentMetric);
+  if(geoLayer) geoLayer.remove();
+  geoLayer = L.geoJSON(SECTORES, {
+    style: styleFor,
+    onEachFeature: (feature, layer) => {
+      const stats = feature.properties.stats;
+      const label = feature.properties.barrio || feature.properties.name;
+      layer.bindTooltip(label + (stats ? ' — ' + (currentMetric.isPct ? fmtPct(currentMetric.get(stats)) : fmtN(currentMetric.get(stats))) : ' (sin datos)'), { sticky: true });
+      layer.on('click', () => renderPanel(feature));
+      layer.on('mouseover', () => layer.setStyle({ weight: 3 }));
+      layer.on('mouseout', () => layer.setStyle({ weight: 1.4 }));
+    }
+  }).addTo(map);
+  renderLegend(currentMetric._min, currentMetric._max);
+}
+
+function fitToZonas(){
+  const bounds = geoLayer.getBounds();
+  if(bounds.isValid()) map.fitBounds(bounds, { padding: [24,24] });
+}
+
+sel.addEventListener('change', () => {
+  currentMetric = METRICS.find(m => m.key === sel.value);
+  redraw();
+});
+
+redraw();
+fitToZonas();
+</script>
+</body>
+</html>
