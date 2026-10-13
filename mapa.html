@@ -106,7 +106,9 @@ a{color:inherit}
 }
 
 /* Semáforo de Gestión ISP (Top-2 Box) */
-.isp-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
+.isp-badge{display:inline-flex;align-items:center;gap:4px;
+.isp-badge .material-symbols-outlined{font-size:13px;line-height:1;margin:0}
+padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
 .isp-optimo{background:#dcfce7;color:#15803d}
 .isp-intermedio{background:#fef3c7;color:#b45309}
 .isp-critico{background:#fee2e2;color:#b91c1c}
@@ -164,9 +166,9 @@ a{color:inherit}
       <strong>¿Qué es el ISP en el mapa?</strong><br>
       El Índice de Satisfacción Positiva (% Muy bien + % Bien) calculado para cada sector barrial.<br><br>
       <strong>Semáforo de Gestión:</strong><br>
-      🟢 <strong>Óptimo (≥ 75%):</strong> Mantenimiento.<br>
-      🟡 <strong>Intermedio (50% a 74.9%):</strong> Mejora puntual.<br>
-      🔴 <strong>Crítico (&lt; 50%):</strong> Reestructuración.<br><br>
+      <span class="material-symbols-outlined" style="color:#00C96B;font-size:15px;vertical-align:-3px">check_circle</span> <strong>Óptimo (≥ 75%):</strong> Mantenimiento.<br>
+      <span class="material-symbols-outlined" style="color:#F2C100;font-size:15px;vertical-align:-3px">warning</span> <strong>Intermedio (50% a 74.9%):</strong> Mejora puntual.<br>
+      <span class="material-symbols-outlined" style="color:#E63946;font-size:15px;vertical-align:-3px">error</span> <strong>Crítico (&lt; 50%):</strong> Reestructuración.<br><br>
       <em>Haz clic en cualquier sector para ver el detalle.</em>
     </span>
   </span>
@@ -233,10 +235,10 @@ function calcZoneGlobalISP(stats){
 }
 
 function getIspSemaforo(isp){
-  if(isp == null) return { status:'sin-dato', chip:'Sin datos', color:'#cbd0d6', badgeClass:'isp-nodata', strategy:'-' };
-  if(isp >= 75) return { status:'optimo', chip:'Óptimo', color:'#00C96B', badgeClass:'isp-optimo', strategy:'Mantenimiento y consolidación' };
-  if(isp >= 50) return { status:'intermedio', chip:'Intermedio', color:'#F2C100', badgeClass:'isp-intermedio', strategy:'Optimización y planes de mejora puntual' };
-  return { status:'critico', chip:'Crítico', color:'#E63946', badgeClass:'isp-critico', strategy:'Reestructuración prioritaria' };
+  if(isp == null) return { status:'sin-dato', chip:'Sin datos', icon:'help_outline', color:'#cbd0d6', badgeClass:'isp-nodata', strategy:'-' };
+  if(isp >= 75) return { status:'optimo', chip:'Óptimo', icon:'check_circle', color:'#00C96B', badgeClass:'isp-optimo', strategy:'Mantenimiento y consolidación' };
+  if(isp >= 50) return { status:'intermedio', chip:'Intermedio', icon:'warning', color:'#F2C100', badgeClass:'isp-intermedio', strategy:'Optimización y planes de mejora puntual' };
+  return { status:'critico', chip:'Crítico', icon:'error', color:'#E63946', badgeClass:'isp-critico', strategy:'Reestructuración prioritaria' };
 }
 
 const METRICS = [
@@ -368,7 +370,7 @@ function statBlocksHTML(props){
       '<div class="isp-card-head">'+
         '<span class="material-symbols-outlined '+(item.iconCls||'')+'">'+item.icon+'</span>'+
         '<span style="font-weight:700;font-size:12.5px;flex:1">'+item.label+'</span>'+
-        '<span class="isp-badge '+sem.badgeClass+'">● '+sem.chip+'</span>'+
+        '<span class="isp-badge '+sem.badgeClass+'"><span class="material-symbols-outlined" style="font-size:13px">'+sem.icon+'</span> '+sem.chip+'</span>'+
       '</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:baseline;margin:4px 0">'+
         '<span style="font-size:11px;color:var(--ink-soft);font-weight:600">Aprobación (ISP):'+
@@ -393,7 +395,7 @@ function statBlocksHTML(props){
     '<div style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:var(--bg-alt);border:1px solid var(--line);font-size:11.5px">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
         '<strong>Semáforo de Gestión:</strong>'+
-        '<span class="isp-badge '+semGlobal.badgeClass+'">● '+semGlobal.chip+'</span>'+
+        '<span class="isp-badge '+semGlobal.badgeClass+'"><span class="material-symbols-outlined" style="font-size:13px">'+semGlobal.icon+'</span> '+semGlobal.chip+'</span>'+
       '</div>'+
       '<div style="color:var(--ink-soft)"><strong>Estrategia:</strong> '+semGlobal.strategy+'</div>'+
     '</div>'+
