@@ -98,6 +98,20 @@ a{color:inherit}
   #panel.hidden{display:none}
   .app{position:relative}
 }
+
+/* Semáforo de Gestión ISP (Top-2 Box) */
+.isp-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
+.isp-optimo{background:#dcfce7;color:#15803d}
+.isp-intermedio{background:#fef3c7;color:#b45309}
+.isp-critico{background:#fee2e2;color:#b91c1c}
+.isp-nodata{background:var(--bg-alt);color:var(--ink-soft)}
+.isp-card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow)}
+.isp-card-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.isp-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin:8px 0 0;padding:8px 10px;background:var(--bg-alt);border-radius:6px;font-size:11px}
+.isp-breakdown-item{display:flex;justify-content:space-between;align-items:center}
+.isp-breakdown-label{color:var(--ink-soft);font-weight:500}
+.isp-breakdown-val{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+
 </style>
 </head>
 <body>
@@ -111,7 +125,7 @@ a{color:inherit}
       <a href="index.html#servicios"><span class="material-symbols-outlined">construction</span>Servicios</a>
       <a href="index.html#consulta-vecinal"><span class="material-symbols-outlined">forum</span>Consulta Vecinal</a>
       <a href="index.html"><span class="material-symbols-outlined">arrow_back</span>Volver al tablero</a>
-      <span class="metric-hint">Selecciona un filtro por servicio para visualizar en el mapa</span>
+      <span class="metric-hint">Índice de Satisfacción Positiva (ISP Top-2 Box)</span>
       <select id="metricSelect" class="metric-select"></select>
     </nav>
   </div>
@@ -133,13 +147,61 @@ const SECTORES = {"type":"FeatureCollection","features":[{"type":"Feature","prop
 const fmtN = n => (n==null ? '—' : n.toLocaleString('es-AR'));
 const fmtPct = v => (v==null ? 's/d' : v.toFixed(1)+'%');
 
+function parseRawBreakdown(rawNote){
+  if(!rawNote) return null;
+  const parts = rawNote.split('·').map(s => s.trim()).filter(Boolean);
+  let muyBien = 0, bien = 0, regular = 0, mal = 0, muyMal = 0;
+  parts.forEach(seg => {
+    const m = seg.match(/^(.*?)\s+([\d.,]+)(%?)$/);
+    if(!m) return;
+    const label = m[1].trim();
+    const val = parseFloat(m[2].replace(',', '.'));
+    if(/muy bien/i.test(label)) muyBien = val;
+    else if(/^bien$/i.test(label)) bien = val;
+    else if(/regular/i.test(label)) regular = val;
+    else if(/^mal$/i.test(label)) mal = val;
+    else if(/muy mal/i.test(label)) muyMal = val;
+  });
+  const total = muyBien + bien + regular + mal + muyMal;
+  if(total <= 0) return null;
+  return {
+    isp: +(100 * (muyBien + bien) / total).toFixed(1),
+    muyBien: +(100 * muyBien / total).toFixed(1),
+    bien: +(100 * bien / total).toFixed(1),
+    regular: +(100 * regular / total).toFixed(1),
+    disconformidad: +(100 * (mal + muyMal) / total).toFixed(1),
+    total
+  };
+}
+
+function calcServiceISP(serv){
+  if(!serv || !serv.rawNote) return null;
+  const b = parseRawBreakdown(serv.rawNote);
+  return b ? b.isp : null;
+}
+
+function calcZoneGlobalISP(stats){
+  if(!stats || !stats.servicios) return null;
+  const vals = Object.values(stats.servicios).map(calcServiceISP).filter(v => v != null);
+  if(!vals.length) return null;
+  return +(vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1);
+}
+
+function getIspSemaforo(isp){
+  if(isp == null) return { status:'sin-dato', chip:'Sin datos', color:'#cbd0d6', badgeClass:'isp-nodata', strategy:'-' };
+  if(isp >= 75) return { status:'optimo', chip:'Óptimo', color:'#00C96B', badgeClass:'isp-optimo', strategy:'Mantenimiento y consolidación' };
+  if(isp >= 50) return { status:'intermedio', chip:'Intermedio', color:'#F2C100', badgeClass:'isp-intermedio', strategy:'Optimización y planes de mejora puntual' };
+  return { status:'critico', chip:'Crítico', color:'#E63946', badgeClass:'isp-critico', strategy:'Reestructuración prioritaria' };
+}
+
 const METRICS = [
-  { key: 'muestras', label: 'Muestras recolectadas', icon: 'fact_check', iconCls: '', get: s => s.muestras, isPct: false },
-  { key: 'serv-alumbrado', label: 'Alumbrado público (mal o muy mal)', icon: 'table_lamp', iconCls: 'icon-alumbrado', get: s => s.servicios.alumbrado ? s.servicios.alumbrado.pct : null, isPct: true },
-  { key: 'serv-basura', label: 'Recolección de residuos (mal o muy mal)', icon: 'delete_sweep', iconCls: 'icon-residuos', get: s => s.servicios.basura ? s.servicios.basura.pct : null, isPct: true },
-  { key: 'serv-yuyos', label: 'Limpieza de baldíos / yuyos (mal o muy mal)', icon: 'grass', iconCls: 'icon-yuyos', get: s => s.servicios.yuyos ? s.servicios.yuyos.pct : null, isPct: true },
-  { key: 'serv-calle', label: 'Estado de calles (mal o muy mal)', icon: 'unpaved_road', iconCls: 'icon-calles', get: s => s.servicios.calle ? s.servicios.calle.pct : null, isPct: true },
-  { key: 'serv-riego', label: 'Riego y desagües (mal o muy mal)', icon: 'water', iconCls: 'icon-riego', get: s => s.servicios.riego ? s.servicios.riego.pct : null, isPct: true },
+  { key: 'isp-global', label: 'ISP Global — Aprobación promedio', icon: 'verified', iconCls: '', get: s => calcZoneGlobalISP(s), isPct: true, isIsp: true },
+  { key: 'serv-alumbrado', label: 'Alumbrado público (ISP)', icon: 'table_lamp', iconCls: 'icon-alumbrado', get: s => calcServiceISP(s.servicios.alumbrado), isPct: true, isIsp: true },
+  { key: 'serv-basura', label: 'Recolección de residuos (ISP)', icon: 'delete_sweep', iconCls: 'icon-residuos', get: s => calcServiceISP(s.servicios.basura), isPct: true, isIsp: true },
+  { key: 'serv-yuyos', label: 'Limpieza de baldíos / yuyos (ISP)', icon: 'grass', iconCls: 'icon-yuyos', get: s => calcServiceISP(s.servicios.yuyos), isPct: true, isIsp: true },
+  { key: 'serv-calle', label: 'Estado de calles / bacheo (ISP)', icon: 'unpaved_road', iconCls: 'icon-calles', get: s => calcServiceISP(s.servicios.calle), isPct: true, isIsp: true },
+  { key: 'serv-riego', label: 'Riego y desagües (ISP)', icon: 'water', iconCls: 'icon-riego', get: s => calcServiceISP(s.servicios.riego), isPct: true, isIsp: true },
+  { key: 'muestras', label: 'Muestras recolectadas', icon: 'fact_check', iconCls: '', get: s => s.muestras, isPct: false, isIsp: false },
 ];
 
 const sel = document.getElementById('metricSelect');
@@ -160,12 +222,27 @@ function lerpColor(hex1,hex2,t){
 let currentMetric = METRICS[0];
 
 function colorFor(value, min, max){
-  if(value==null) return '#cbd0d6';
-  const t = max>min ? (value-min)/(max-min) : 0.5;
-  return lerpColor('#dbf1fb', '#009DE0', Math.max(0,Math.min(1,t)));
+  if(value == null) return '#cbd0d6';
+  if(currentMetric.isIsp){
+    return getIspSemaforo(value).color;
+  }
+  const t = max > min ? (value - min) / (max - min) : 0.5;
+  return lerpColor('#dbf1fb', '#009DE0', Math.max(0, Math.min(1, t)));
 }
 
 function renderLegend(min, max){
+  if(currentMetric.isIsp){
+    document.getElementById('legend').innerHTML =
+      '<div class="legend-title"><span class="material-symbols-outlined '+currentMetric.iconCls+'">'+currentMetric.icon+'</span>'+currentMetric.label+'</div>'+
+      '<div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:6px">Semáforo de Gestión (Top-2 Box)</div>'+
+      '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:6px">'+
+        '<div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#00C96B;flex-shrink:0"></span><strong>&ge; 75%</strong> Óptimo (Mantenimiento)</div>'+
+        '<div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#F2C100;flex-shrink:0"></span><strong>50% – 74.9%</strong> Intermedio (Mejora)</div>'+
+        '<div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#E63946;flex-shrink:0"></span><strong>&lt; 50%</strong> Crítico (Reestructuración)</div>'+
+      '</div>'+
+      '<div class="legend-gray"><i></i> Sin dato para esta métrica</div>';
+    return;
+  }
   const steps = 5;
   const bars = [];
   for(let i=0;i<steps;i++){
@@ -174,7 +251,7 @@ function renderLegend(min, max){
   document.getElementById('legend').innerHTML =
     '<div class="legend-title"><span class="material-symbols-outlined '+currentMetric.iconCls+'">'+currentMetric.icon+'</span>'+currentMetric.label+'</div>'+
     '<div class="legend-scale">'+bars.join('')+'</div>'+
-    '<div class="legend-labels"><span>'+(currentMetric.isPct? min.toFixed(0)+'%' : fmtN(Math.round(min)))+'</span><span>'+(currentMetric.isPct? max.toFixed(0)+'%' : fmtN(Math.round(max)))+'</span></div>'+
+    '<div class="legend-labels"><span>'+fmtN(Math.round(min))+'</span><span>'+fmtN(Math.round(max))+'</span></div>'+
     '<div class="legend-gray"><i></i> Sin dato para esta métrica</div>';
 }
 
@@ -217,22 +294,56 @@ function categoryBlock(chipClass, icon, title, rows){
 
 function statBlocksHTML(props){
   const s = props.stats;
+  const gIsp = calcZoneGlobalISP(s);
+  const semGlobal = getIspSemaforo(gIsp);
+
   const items = [
-    ['Alumbrado público', s.servicios.alumbrado, 'table_lamp', 'icon-alumbrado'],
-    ['Recolección de residuos', s.servicios.basura, 'delete_sweep', 'icon-residuos'],
-    ['Limpieza de baldíos / yuyos', s.servicios.yuyos, 'grass', 'icon-yuyos'],
-    ['Estado de calles', s.servicios.calle, 'unpaved_road', 'icon-calles'],
-    ['Riego y desagües', s.servicios.riego, 'water', 'icon-riego'],
+    { label: 'Alumbrado público', data: s.servicios.alumbrado, icon: 'table_lamp', iconCls: 'icon-alumbrado' },
+    { label: 'Recolección de residuos', data: s.servicios.basura, icon: 'delete_sweep', iconCls: 'icon-residuos' },
+    { label: 'Limpieza de baldíos / yuyos', data: s.servicios.yuyos, icon: 'grass', iconCls: 'icon-yuyos' },
+    { label: 'Estado de calles (bacheo)', data: s.servicios.calle, icon: 'unpaved_road', iconCls: 'icon-calles' },
+    { label: 'Riego y desagües', data: s.servicios.riego, icon: 'water', iconCls: 'icon-riego' },
   ];
-  const withData = items.filter(([,v]) => v && v.pct != null);
-  const avg = withData.length ? withData.reduce((sum,[,v]) => sum+v.pct, 0)/withData.length : null;
+
+  const servCards = items.map(item => {
+    if(!item.data || !item.data.rawNote){
+      return '<div class="isp-card"><div class="isp-card-head"><span class="material-symbols-outlined '+(item.iconCls||'')+'">'+item.icon+'</span><strong style="font-size:12.5px">'+item.label+'</strong><span class="isp-badge isp-nodata" style="margin-left:auto">s/d</span></div></div>';
+    }
+    const b = parseRawBreakdown(item.data.rawNote);
+    const sem = getIspSemaforo(b.isp);
+    return '<div class="isp-card">'+
+      '<div class="isp-card-head">'+
+        '<span class="material-symbols-outlined '+(item.iconCls||'')+'">'+item.icon+'</span>'+
+        '<span style="font-weight:700;font-size:12.5px;flex:1">'+item.label+'</span>'+
+        '<span class="isp-badge '+sem.badgeClass+'">● '+sem.chip+'</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin:4px 0">'+
+        '<span style="font-size:11px;color:var(--ink-soft);font-weight:600">Aprobación (ISP):</span>'+
+        '<strong style="font-size:17px;font-weight:900;color:'+sem.color+'">'+fmtPct(b.isp)+'</strong>'+
+      '</div>'+
+      '<div class="bar-track" style="margin:2px 0 8px"><div class="bar-fill" style="width:'+b.isp+'%;background:'+sem.color+'"></div></div>'+
+      '<div class="isp-breakdown">'+
+        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Excelencia (Muy bien):</span><span class="isp-breakdown-val">'+fmtPct(b.muyBien)+'</span></div>'+
+        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Aprobación (Bien):</span><span class="isp-breakdown-val">'+fmtPct(b.bien)+'</span></div>'+
+        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Oportunidad (Regular):</span><span class="isp-breakdown-val">'+fmtPct(b.regular)+'</span></div>'+
+        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Disconformidad:</span><span class="isp-breakdown-val" style="color:#b91c1c">'+fmtPct(b.disconformidad)+'</span></div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
   return '<div class="panel-hero">'+
       '<div><strong>'+(s.muestras!=null ? fmtN(s.muestras) : 's/d')+'</strong><span>muestras recolectadas</span></div>'+
-      '<div><strong>'+(avg!=null ? fmtPct(avg) : 's/d')+'</strong><span>calificación negativa promedio</span></div>'+
+      '<div><strong style="color:'+semGlobal.color+'">'+(gIsp!=null ? fmtPct(gIsp) : 's/d')+'</strong><span>ISP Global del barrio</span></div>'+
     '</div>'+
-    categoryBlock('tint-amarillo','construction','Servicios urbanos',
-      items.map(([label,v,icon,iconCls]) => [label, v ? fmtPct(v.pct) : 's/d', v ? v.count : null, icon, iconCls])
-    );
+    '<div style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:var(--bg-alt);border:1px solid var(--line);font-size:11.5px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+        '<strong>Semáforo de Gestión:</strong>'+
+        '<span class="isp-badge '+semGlobal.badgeClass+'">● '+semGlobal.chip+'</span>'+
+      '</div>'+
+      '<div style="color:var(--ink-soft)"><strong>Estrategia:</strong> '+semGlobal.strategy+'</div>'+
+    '</div>'+
+    '<div class="cat-chip tint-amarillo"><span class="material-symbols-outlined">construction</span>Servicios urbanos · ISP Top-2 Box</div>'+
+    '<div style="display:flex;flex-direction:column;gap:10px">'+servCards+'</div>';
 }
 
 function renderPanel(feature){
@@ -259,7 +370,19 @@ function redraw(){
     onEachFeature: (feature, layer) => {
       const stats = feature.properties.stats;
       const label = feature.properties.barrio || feature.properties.name;
-      layer.bindTooltip(label + (stats ? ' — ' + (currentMetric.isPct ? fmtPct(currentMetric.get(stats)) : fmtN(currentMetric.get(stats))) : ' (sin datos)'), { sticky: true });
+      let valStr = ' (sin datos)';
+      if(stats){
+        const val = currentMetric.get(stats);
+        if(currentMetric.isIsp && val != null){
+          const sem = getIspSemaforo(val);
+          valStr = ' — ' + fmtPct(val) + ' ISP (' + sem.chip + ')';
+        } else if(currentMetric.isPct){
+          valStr = ' — ' + fmtPct(val);
+        } else {
+          valStr = ' — ' + fmtN(val) + ' muestras';
+        }
+      }
+      layer.bindTooltip(label + valStr, { sticky: true });
       layer.on('click', () => renderPanel(feature));
       layer.on('mouseover', () => layer.setStyle({ weight: 3 }));
       layer.on('mouseout', () => layer.setStyle({ weight: 1.4 }));
