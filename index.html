@@ -64,8 +64,16 @@ a{color:inherit}
 .hero .eyebrow{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-d);background:var(--brand-bg);padding:5px 12px;border-radius:999px;margin-bottom:16px}
 .hero h1{font-size:clamp(32px,5vw,52px);font-weight:900;letter-spacing:-.02em;margin:0 0 12px}
 .hero p.sub{font-size:16.5px;color:var(--ink-soft);max-width:640px;margin:0 0 32px}
-.hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-.hero-stat{background:var(--bg);padding:20px;opacity:0;animation:heroFadeUp .6s var(--ease-decel) forwards}
+.hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);position:relative}
+.hero-stat{background:var(--bg);padding:20px;opacity:0;animation:heroFadeUp .6s var(--ease-decel) forwards;position:relative}
+.hero-stat:first-child{border-top-left-radius:calc(var(--radius) - 1px);border-bottom-left-radius:calc(var(--radius) - 1px)}
+.hero-stat:last-child{border-top-right-radius:calc(var(--radius) - 1px);border-bottom-right-radius:calc(var(--radius) - 1px)}
+.hero-stat:hover,.hero-stat:focus-within{z-index:40}
+.tile:hover,.tile:focus-within{z-index:40}
+@media (max-width:640px){
+  .hero-stat:first-child{border-top-left-radius:calc(var(--radius) - 1px);border-top-right-radius:calc(var(--radius) - 1px);border-bottom-left-radius:0}
+  .hero-stat:last-child{border-bottom-left-radius:calc(var(--radius) - 1px);border-bottom-right-radius:calc(var(--radius) - 1px);border-top-right-radius:0}
+}
 .hero-stat:nth-child(1){animation-delay:.05s}
 .hero-stat:nth-child(2){animation-delay:.12s}
 .hero-stat:nth-child(3){animation-delay:.19s}
@@ -180,24 +188,36 @@ footer{border-top:1px solid var(--line);padding:32px 0;text-align:center;font-si
 
 
 /* Tooltip explicativo con ícono de Información */
-.hero-stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hero-stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:relative}
 .hero-stat-top .material-symbols-outlined{margin:0}
-.info-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);opacity:.8;transition:opacity .2s var(--ease-standard),color .2s var(--ease-standard);vertical-align:middle}
-.info-tip:hover,.info-tip:focus-visible{opacity:1;color:var(--brand);outline:none}
-.info-tip > .material-symbols-outlined{font-size:16px;line-height:1}
-.info-tip-content{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%) translateY(4px);background:#1a2028;color:#f8fafc;padding:10px 14px;border-radius:10px;font-size:11.5px;line-height:1.5;font-weight:400;width:max-content;max-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s var(--ease-standard),transform .2s var(--ease-standard),visibility .2s;z-index:1000;text-align:left;white-space:normal}
+.info-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--brand);opacity:.85;transition:opacity .2s var(--ease-standard),color .2s var(--ease-standard),transform .15s var(--ease-standard);vertical-align:middle;background:none;border:none;padding:2px}
+.info-tip:hover,.info-tip:focus-visible{opacity:1;color:var(--brand-d);outline:none;transform:scale(1.1)}
+.info-tip > .material-symbols-outlined{font-size:17px;line-height:1}
+.info-tip-content{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%) translateY(4px);background:#1a2028;color:#f8fafc;padding:10px 14px;border-radius:10px;font-size:12px;line-height:1.5;font-weight:400;width:max-content;max-width:290px;box-shadow:0 8px 24px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.2);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s var(--ease-standard),transform .2s var(--ease-standard),visibility .2s;z-index:1000;text-align:left;white-space:normal}
 .info-tip-content strong{color:#ffffff;font-weight:700}
 .info-tip-content code{background:rgba(255,255,255,.18);padding:1px 5px;border-radius:4px;font-family:inherit;font-weight:700;color:#38bdf8}
 .info-tip-content::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border-width:6px;border-style:solid;border-color:#1a2028 transparent transparent transparent}
 .info-tip:hover .info-tip-content,.info-tip:focus-visible .info-tip-content{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+
+/* En la cabecera hero-stat, el tooltip se despliega hacia abajo para no cortarse arriba */
+.hero-stat .info-tip-content{bottom:auto;top:calc(100% + 9px);right:-6px;left:auto;transform:translateY(-4px)}
+.hero-stat .info-tip:hover .info-tip-content,.hero-stat .info-tip:focus-visible .info-tip-content{transform:translateY(0)}
+.hero-stat .info-tip-content::after{top:auto;bottom:100%;left:auto;right:10px;transform:none;border-color:transparent transparent #1a2028 transparent}
+
+.hero-stat .info-tip.align-left .info-tip-content{left:-6px;right:auto;transform:translateY(-4px)}
+.hero-stat .info-tip.align-left:hover .info-tip-content,.hero-stat .info-tip.align-left:focus-visible .info-tip-content{transform:translateY(0)}
+.hero-stat .info-tip.align-left .info-tip-content::after{left:10px;right:auto}
+
 .info-tip.align-left .info-tip-content{left:0;transform:translateX(0) translateY(4px)}
 .info-tip.align-left:hover .info-tip-content,.info-tip.align-left:focus-visible .info-tip-content{transform:translateX(0) translateY(0)}
 .info-tip.align-left .info-tip-content::after{left:14px;transform:none}
+
 .info-tip.align-right .info-tip-content{left:auto;right:0;transform:translateX(0) translateY(4px)}
 .info-tip.align-right:hover .info-tip-content,.info-tip.align-right:focus-visible .info-tip-content{transform:translateX(0) translateY(0)}
 .info-tip.align-right .info-tip-content::after{left:auto;right:14px;transform:none}
+
 @media (max-width:640px){
-  .info-tip-content{max-width:220px}
+  .info-tip-content{max-width:230px}
 }
 
 </style>
