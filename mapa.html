@@ -112,6 +112,28 @@ a{color:inherit}
 .isp-breakdown-label{color:var(--ink-soft);font-weight:500}
 .isp-breakdown-val{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
 
+
+/* Tooltip explicativo con ícono de Información */
+.hero-stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hero-stat-top .material-symbols-outlined{margin:0}
+.info-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);opacity:.8;transition:opacity .2s var(--ease-standard),color .2s var(--ease-standard);vertical-align:middle}
+.info-tip:hover,.info-tip:focus-visible{opacity:1;color:var(--brand);outline:none}
+.info-tip > .material-symbols-outlined{font-size:16px;line-height:1}
+.info-tip-content{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%) translateY(4px);background:#1a2028;color:#f8fafc;padding:10px 14px;border-radius:10px;font-size:11.5px;line-height:1.5;font-weight:400;width:max-content;max-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s var(--ease-standard),transform .2s var(--ease-standard),visibility .2s;z-index:1000;text-align:left;white-space:normal}
+.info-tip-content strong{color:#ffffff;font-weight:700}
+.info-tip-content code{background:rgba(255,255,255,.18);padding:1px 5px;border-radius:4px;font-family:inherit;font-weight:700;color:#38bdf8}
+.info-tip-content::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border-width:6px;border-style:solid;border-color:#1a2028 transparent transparent transparent}
+.info-tip:hover .info-tip-content,.info-tip:focus-visible .info-tip-content{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.info-tip.align-left .info-tip-content{left:0;transform:translateX(0) translateY(4px)}
+.info-tip.align-left:hover .info-tip-content,.info-tip.align-left:focus-visible .info-tip-content{transform:translateX(0) translateY(0)}
+.info-tip.align-left .info-tip-content::after{left:14px;transform:none}
+.info-tip.align-right .info-tip-content{left:auto;right:0;transform:translateX(0) translateY(4px)}
+.info-tip.align-right:hover .info-tip-content,.info-tip.align-right:focus-visible .info-tip-content{transform:translateX(0) translateY(0)}
+.info-tip.align-right .info-tip-content::after{left:auto;right:14px;transform:none}
+@media (max-width:640px){
+  .info-tip-content{max-width:220px}
+}
+
 </style>
 </head>
 <body>
@@ -125,7 +147,20 @@ a{color:inherit}
       <a href="index.html#servicios"><span class="material-symbols-outlined">construction</span>Servicios</a>
       <a href="index.html#consulta-vecinal"><span class="material-symbols-outlined">forum</span>Consulta Vecinal</a>
       <a href="index.html"><span class="material-symbols-outlined">arrow_back</span>Volver al tablero</a>
-      <span class="metric-hint">Índice de Satisfacción Positiva (ISP Top-2 Box)</span>
+      <span class="metric-hint">Índice de Satisfacción Positiva (ISP Top-2 Box)
+  <span class="info-tip align-right" tabindex="0" role="tooltip" aria-label="Información sobre el mapa e ISP">
+    <span class="material-symbols-outlined">info</span>
+    <span class="info-tip-content" style="max-width:300px">
+      <strong>¿Qué es el ISP en el mapa?</strong><br>
+      El Índice de Satisfacción Positiva (% Muy bien + % Bien) calculado para cada sector barrial.<br><br>
+      <strong>Semáforo de Gestión:</strong><br>
+      🟢 <strong>Óptimo (≥ 75%):</strong> Mantenimiento.<br>
+      🟡 <strong>Intermedio (50% a 74.9%):</strong> Mejora puntual.<br>
+      🔴 <strong>Crítico (&lt; 50%):</strong> Reestructuración.<br><br>
+      <em>Haz clic en cualquier sector para ver el detalle.</em>
+    </span>
+  </span>
+</span>
       <select id="metricSelect" class="metric-select"></select>
     </nav>
   </div>
@@ -233,7 +268,15 @@ function colorFor(value, min, max){
 function renderLegend(min, max){
   if(currentMetric.isIsp){
     document.getElementById('legend').innerHTML =
-      '<div class="legend-title"><span class="material-symbols-outlined '+currentMetric.iconCls+'">'+currentMetric.icon+'</span>'+currentMetric.label+'</div>'+
+      '<div class="legend-title">'+
+        '<span class="material-symbols-outlined '+currentMetric.iconCls+'">'+currentMetric.icon+'</span>'+currentMetric.label+
+        '<span class="info-tip" tabindex="0" role="tooltip" aria-label="Información sobre el Semáforo" style="margin-left:4px">'+
+          '<span class="material-symbols-outlined">info</span>'+
+          '<span class="info-tip-content" style="max-width:260px">'+
+            '<strong>Semáforo de Gestión:</strong><br>Prioriza acciones según el nivel de aprobación ciudadana (Top-2 Box).'+
+          '</span>'+
+        '</span>'+
+      '</div>'+
       '<div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:6px">Semáforo de Gestión (Top-2 Box)</div>'+
       '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:6px">'+
         '<div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#00C96B;flex-shrink:0"></span><strong>&ge; 75%</strong> Óptimo (Mantenimiento)</div>'+
@@ -318,7 +361,9 @@ function statBlocksHTML(props){
         '<span class="isp-badge '+sem.badgeClass+'">● '+sem.chip+'</span>'+
       '</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:baseline;margin:4px 0">'+
-        '<span style="font-size:11px;color:var(--ink-soft);font-weight:600">Aprobación (ISP):</span>'+
+        '<span style="font-size:11px;color:var(--ink-soft);font-weight:600">Aprobación (ISP):'+
+          '<span class="info-tip" tabindex="0" style="margin-left:4px"><span class="material-symbols-outlined" style="font-size:13px">info</span><span class="info-tip-content"><strong>ISP Top-2 Box:</strong> % Muy bien + % Bien sobre respuestas válidas en este barrio.</span></span>'+
+        '</span>'+
         '<strong style="font-size:17px;font-weight:900;color:'+sem.color+'">'+fmtPct(b.isp)+'</strong>'+
       '</div>'+
       '<div class="bar-track" style="margin:2px 0 8px"><div class="bar-fill" style="width:'+b.isp+'%;background:'+sem.color+'"></div></div>'+

@@ -178,6 +178,28 @@ footer{border-top:1px solid var(--line);padding:32px 0;text-align:center;font-si
 .isp-breakdown-label{color:var(--ink-soft);font-weight:500}
 .isp-breakdown-val{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
 
+
+/* Tooltip explicativo con ícono de Información */
+.hero-stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hero-stat-top .material-symbols-outlined{margin:0}
+.info-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-soft);opacity:.8;transition:opacity .2s var(--ease-standard),color .2s var(--ease-standard);vertical-align:middle}
+.info-tip:hover,.info-tip:focus-visible{opacity:1;color:var(--brand);outline:none}
+.info-tip > .material-symbols-outlined{font-size:16px;line-height:1}
+.info-tip-content{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%) translateY(4px);background:#1a2028;color:#f8fafc;padding:10px 14px;border-radius:10px;font-size:11.5px;line-height:1.5;font-weight:400;width:max-content;max-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s var(--ease-standard),transform .2s var(--ease-standard),visibility .2s;z-index:1000;text-align:left;white-space:normal}
+.info-tip-content strong{color:#ffffff;font-weight:700}
+.info-tip-content code{background:rgba(255,255,255,.18);padding:1px 5px;border-radius:4px;font-family:inherit;font-weight:700;color:#38bdf8}
+.info-tip-content::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border-width:6px;border-style:solid;border-color:#1a2028 transparent transparent transparent}
+.info-tip:hover .info-tip-content,.info-tip:focus-visible .info-tip-content{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.info-tip.align-left .info-tip-content{left:0;transform:translateX(0) translateY(4px)}
+.info-tip.align-left:hover .info-tip-content,.info-tip.align-left:focus-visible .info-tip-content{transform:translateX(0) translateY(0)}
+.info-tip.align-left .info-tip-content::after{left:14px;transform:none}
+.info-tip.align-right .info-tip-content{left:auto;right:0;transform:translateX(0) translateY(4px)}
+.info-tip.align-right:hover .info-tip-content,.info-tip.align-right:focus-visible .info-tip-content{transform:translateX(0) translateY(0)}
+.info-tip.align-right .info-tip-content::after{left:auto;right:14px;transform:none}
+@media (max-width:640px){
+  .info-tip-content{max-width:220px}
+}
+
 </style>
 </head>
 <body>
@@ -201,10 +223,63 @@ footer{border-top:1px solid var(--line);padding:32px 0;text-align:center;font-si
     <h1>Satisfacción con los<br>servicios públicos municipales del barrio</h1>
     <p class="sub">Valoración de los hogares sobre alumbrado público, recolección de residuos, limpieza de baldíos, estado de calles y riego en su cuadra, a partir de la Encuesta Social puerta a puerta y de la Consulta Vecinal sobre cordón cuneta realizada por la Dirección de Estadística, Control de Calidad y Procesos.</p>
     <div class="hero-stats">
-      <div class="hero-stat"><span class="material-symbols-outlined">fact_check</span><strong id="statEncuestas">-</strong><span>encuestas de servicios</span></div>
-      <div class="hero-stat"><span class="material-symbols-outlined">forum</span><strong id="statZonas">14</strong><span>zonas de Consulta Vecinal</span></div>
-      <div class="hero-stat"><span class="material-symbols-outlined" style="color:var(--brand)">thumb_up</span><strong id="statISP">-</strong><span>Índice Satisfacción Positiva (ISP)<span class="hero-stat-source">Aprobación promedio ciudadana</span></span></div>
-      <div class="hero-stat"><span class="material-symbols-outlined" style="color:var(--brand)">star</span><strong id="statMejorServicio">-</strong><span>Servicio con mayor ISP<span class="hero-stat-source">Líder en satisfacción</span></span></div>
+      <div class="hero-stat">
+        <div class="hero-stat-top">
+          <span class="material-symbols-outlined">fact_check</span>
+          <span class="info-tip align-left" tabindex="0" role="tooltip" aria-label="Información sobre encuestas">
+            <span class="material-symbols-outlined">info</span>
+            <span class="info-tip-content">
+              <strong>Encuestas de servicios:</strong> Cantidad de respuestas efectivas obtenidas puerta a puerta en hogares sobre la prestación de los 5 servicios urbanos en su cuadra.
+            </span>
+          </span>
+        </div>
+        <strong id="statEncuestas">-</strong>
+        <span>encuestas de servicios</span>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-top">
+          <span class="material-symbols-outlined">forum</span>
+          <span class="info-tip" tabindex="0" role="tooltip" aria-label="Información sobre zonas">
+            <span class="material-symbols-outlined">info</span>
+            <span class="info-tip-content">
+              <strong>Zonas relevadas:</strong> 14 sectores barriales con operativos presenciales realizados entre enero y octubre de 2026 (Consulta Vecinal y Encuesta Social).
+            </span>
+          </span>
+        </div>
+        <strong id="statZonas">14</strong>
+        <span>zonas de Consulta Vecinal</span>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-top">
+          <span class="material-symbols-outlined" style="color:var(--brand)">thumb_up</span>
+          <span class="info-tip" tabindex="0" role="tooltip" aria-label="Información sobre el ISP">
+            <span class="material-symbols-outlined">info</span>
+            <span class="info-tip-content">
+              <strong>¿Qué es el ISP?</strong><br>
+              <strong>Índice de Satisfacción Positiva</strong> basado en la metodología <em>Top-2 Box Score</em>.<br><br>
+              <strong>¿Cómo se calcula?</strong><br>
+              Suma exclusivamente las respuestas positivas:<br>
+              <code>ISP = % Muy bien + % Bien</code><br>
+              sobre el total de respuestas válidas (excluyendo Ns/Nc). Refleja la aprobación real de la comunidad.
+            </span>
+          </span>
+        </div>
+        <strong id="statISP">-</strong>
+        <span>Índice Satisfacción Positiva (ISP)<span class="hero-stat-source">Aprobación promedio ciudadana</span></span>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-top">
+          <span class="material-symbols-outlined" style="color:var(--brand)">star</span>
+          <span class="info-tip align-right" tabindex="0" role="tooltip" aria-label="Información sobre el servicio líder">
+            <span class="material-symbols-outlined">info</span>
+            <span class="info-tip-content">
+              <strong>Servicio Líder:</strong> Servicio público municipal que alcanza el mayor ISP en el promedio consolidado de todas las zonas de la ciudad.
+            </span>
+          </span>
+        </div>
+        <strong id="statMejorServicio">-</strong>
+        <span>Servicio con mayor ISP<span class="hero-stat-source">Líder en satisfacción</span></span>
+      </div>
     </div>
   </div>
 </section>
@@ -212,7 +287,22 @@ footer{border-top:1px solid var(--line);padding:32px 0;text-align:center;font-si
 <main class="wrap">
 
   <section class="cat-section" id="servicios">
-    <div class="cat-head"><span class="chip"><span class="material-symbols-outlined">construction</span>Servicios urbanos</span><h2>Percepción global de servicios en los barrios</h2></div>
+    <div class="cat-head">
+      <span class="chip"><span class="material-symbols-outlined">verified</span>Metodología ISP</span>
+      <h2>Percepción global de servicios en los barrios · Índice de Satisfacción Positiva (ISP)</h2>
+      <span class="info-tip" tabindex="0" role="tooltip" aria-label="Información sobre la metodología ISP">
+        <span class="material-symbols-outlined">info</span>
+        <span class="info-tip-content" style="max-width:320px">
+          <strong>Semáforo de Gestión Municipal (Top-2 Box):</strong><br>
+          🟢 <strong>Óptimo (≥ 75%):</strong> Aprobación alta. Estrategia de mantenimiento y consolidación.<br>
+          🟡 <strong>Intermedio (50% a 74.9%):</strong> Zona de oportunidad. Optimización y planes de mejora puntual.<br>
+          🔴 <strong>Crítico (&lt; 50%):</strong> Desempeño crítico. Reestructuración prioritaria de servicios.
+        </span>
+      </span>
+    </div>
+    <p class="raw-note" style="max-width:100%;margin-bottom:18px">
+      Métrica <strong>Top-2 Box Score</strong>: porcentaje de aprobación ciudadana sumando únicamente las valoraciones positivas (<em>% Muy bien + % Bien</em>). Clasificado mediante <strong>Semáforo de Gestión</strong> para priorización de políticas públicas: 🟢 <strong>Óptimo</strong> (&ge; 75%) · 🟡 <strong>Intermedio</strong> (50% a 74.9%) · 🔴 <strong>Crítico</strong> (&lt; 50%).
+    </p>
     <div class="tile-grid" id="serviciosGrid"></div>
   </section>
 
@@ -490,14 +580,25 @@ function renderServicios(){
         '<span class="isp-badge '+sem.badgeClass+'">● '+sem.chip+'</span>'+
       '</div>'+
       '<div class="tile-count">Aprobación ISP en '+fmtN(tiles.length)+(tiles.length === 1 ? ' zona' : ' zonas')+'</div>'+
-      '<div class="tile-label"><span class="material-symbols-outlined '+iconCls+'">'+icon+'</span>'+label+'</div>'+
+      '<div class="tile-label">'+
+        '<span class="material-symbols-outlined '+iconCls+'">'+icon+'</span>'+label+
+        '<span class="info-tip" tabindex="0" role="tooltip" aria-label="Detalles de '+escapeHtml(label)+'" style="margin-left:6px">'+
+          '<span class="material-symbols-outlined">info</span>'+
+          '<span class="info-tip-content">'+
+            '<strong>'+escapeHtml(label)+'</strong><br>'+
+            '<strong>ISP:</strong> '+fmtPct(isp)+' (Muy bien + Bien)<br>'+
+            '<strong>Semáforo:</strong> '+sem.chip+'<br>'+
+            '<strong>Estrategia:</strong> '+sem.strategy+
+          '</span>'+
+        '</span>'+
+      '</div>'+
       '<div class="bar-track"><div class="bar-fill" style="width:'+Math.min(100,isp)+'%;background:'+sem.color+'"></div></div>'+
       '<div class="isp-strategy"><strong>Estrategia:</strong> '+sem.strategy+'</div>'+
       '<div class="isp-breakdown">'+
-        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Excelencia (Muy bien):</span><span class="isp-breakdown-val">'+fmtPct(muyBien)+'</span></div>'+
-        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Aprobación (Bien):</span><span class="isp-breakdown-val">'+fmtPct(bien)+'</span></div>'+
-        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Oportunidad (Regular):</span><span class="isp-breakdown-val">'+fmtPct(regular)+'</span></div>'+
-        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Disconformidad:</span><span class="isp-breakdown-val" style="color:#b91c1c">'+fmtPct(disconformidad)+'</span></div>'+
+        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Excelencia (Muy bien):<span class="info-tip" tabindex="0" style="margin-left:3px"><span class="material-symbols-outlined" style="font-size:13px">info</span><span class="info-tip-content"><strong>Excelencia:</strong> Calificación máxima Muy bien.</span></span></span><span class="isp-breakdown-val">'+fmtPct(muyBien)+'</span></div>'+
+        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Aprobación (Bien):<span class="info-tip" tabindex="0" style="margin-left:3px"><span class="material-symbols-outlined" style="font-size:13px">info</span><span class="info-tip-content"><strong>Aprobación estándar:</strong> Calificación favorable Bien.</span></span></span><span class="isp-breakdown-val">'+fmtPct(bien)+'</span></div>'+
+        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Oportunidad (Regular):<span class="info-tip" tabindex="0" style="margin-left:3px"><span class="material-symbols-outlined" style="font-size:13px">info</span><span class="info-tip-content"><strong>Zona de oportunidad:</strong> Opinión neutra Regular; margen de mejora.</span></span></span><span class="isp-breakdown-val">'+fmtPct(regular)+'</span></div>'+
+        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Disconformidad:<span class="info-tip" tabindex="0" style="margin-left:3px"><span class="material-symbols-outlined" style="font-size:13px">info</span><span class="info-tip-content"><strong>Disconformidad:</strong> Respuestas Mal y Muy mal.</span></span></span><span class="isp-breakdown-val" style="color:#b91c1c">'+fmtPct(disconformidad)+'</span></div>'+
       '</div>'+
       (rawNote ? '<div class="raw-note" style="margin:8px 0 0;font-size:11px;display:none">'+rawNote+'</div>' : '');
 
