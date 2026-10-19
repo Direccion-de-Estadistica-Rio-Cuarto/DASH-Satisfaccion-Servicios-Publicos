@@ -1,0 +1,487 @@
+/* ==========================================================================
+   tablero.css — Estilos propios del Monitor de Satisfacción de Servicios.
+   Cumple estrictamente con el design system y los tokens compartidos.
+   ========================================================================== */
+
+/* --- Semáforo de Gestión ISP (Top-2 Box) --------------------------------- */
+.isp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.isp-badge .icono {
+  font-size: 14px;
+  line-height: 1;
+}
+.isp-optimo {
+  background: color-mix(in srgb, var(--ok) 14%, transparent);
+  color: var(--ok);
+}
+.isp-intermedio {
+  background: color-mix(in srgb, var(--alerta) 16%, transparent);
+  color: var(--alerta);
+}
+.isp-critico {
+  background: color-mix(in srgb, var(--grave) 14%, transparent);
+  color: var(--grave);
+}
+.isp-nodata {
+  background: var(--fondo);
+  color: var(--texto-suave);
+}
+.isp-strategy {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+.isp-breakdown {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  background: var(--fondo);
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+.isp-breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.isp-breakdown-label {
+  color: var(--texto-suave);
+  font-weight: 500;
+}
+.isp-breakdown-val {
+  font-weight: 700;
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Íconos de servicios ------------------------------------------------- */
+.icon-alumbrado { color: var(--serie-6); }
+.icon-residuos { color: var(--serie-4); }
+.icon-yuyos { color: var(--serie-3); }
+.icon-calles { color: var(--serie-2); }
+.icon-riego { color: var(--serie-1); }
+
+/* --- Párrafos informativos y ventanas emergentes (tooltips) -------------- */
+p.raw-note {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--texto-suave);
+  margin: 12px 0;
+}
+
+.info-tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--marca-enlace);
+  background: none;
+  border: none;
+  padding: 2px;
+  vertical-align: middle;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.info-tip:hover,
+.info-tip:focus-visible {
+  opacity: 1;
+  color: var(--marca);
+  outline: none;
+}
+.info-tip > .icono {
+  font-size: 17px;
+  line-height: 1;
+}
+.info-tip-content {
+  font-family: 'Google Sans Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--texto);
+  color: var(--superficie);
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  font-weight: 400;
+  width: max-content;
+  max-width: 350px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  z-index: 1000;
+  text-align: left;
+  white-space: normal;
+}
+.info-tip-content strong {
+  color: var(--superficie);
+  font-weight: 700;
+}
+.info-tip-content code {
+  background: rgba(255, 255, 255, 0.18);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--marca);
+}
+.info-tip-content::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--texto) transparent transparent transparent;
+}
+.info-tip:hover .info-tip-content,
+.info-tip:focus-visible .info-tip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.kpi {
+  position: relative;
+}
+.kpi-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.kpi .info-tip-content {
+  bottom: auto;
+  top: calc(100% + 8px);
+  right: -6px;
+  left: auto;
+  transform: translateY(-4px);
+}
+.kpi .info-tip:hover .info-tip-content,
+.kpi .info-tip:focus-visible .info-tip-content {
+  transform: translateY(0);
+}
+.kpi .info-tip-content::after {
+  top: auto;
+  bottom: 100%;
+  left: auto;
+  right: 10px;
+  border-color: transparent transparent var(--texto) transparent;
+}
+.info-tip.align-left .info-tip-content {
+  left: 0;
+  right: auto;
+  transform: translateY(4px);
+}
+.info-tip.align-left:hover .info-tip-content {
+  transform: translateY(0);
+}
+.info-tip.align-left .info-tip-content::after {
+  left: 12px;
+  right: auto;
+}
+.info-tip.align-right .info-tip-content {
+  left: auto;
+  right: 0;
+  transform: translateY(4px);
+}
+.info-tip.align-right:hover .info-tip-content {
+  transform: translateY(0);
+}
+.info-tip.align-right .info-tip-content::after {
+  left: auto;
+  right: 12px;
+}
+
+@media (max-width: 640px) {
+  .info-tip-content {
+    max-width: 260px;
+    font-size: 0.85rem;
+  }
+}
+
+/* --- Grillas y Tarjetas de Servicios ------------------------------------- */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+.tile {
+  position: relative;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 18px 20px;
+  background: var(--superficie);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+.tile-num {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 2px;
+}
+.tile-count {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  margin-bottom: 8px;
+}
+.tile-label {
+  font-size: 0.95rem;
+  color: var(--texto);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tile-charts {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 4px;
+}
+.tile-chart-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--texto-suave);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.tile-chart-btn:hover {
+  background: var(--fondo);
+  color: var(--marca);
+}
+.tile-chart-btn .icono {
+  font-size: 18px;
+}
+
+.bar-track {
+  height: 6px;
+  border-radius: 4px;
+  background: var(--borde);
+  overflow: hidden;
+  margin-top: 12px;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.6s ease;
+  background: var(--marca);
+}
+
+/* --- Desplegables de Zonas ----------------------------------------------- */
+.cv-area {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  background: var(--superficie);
+}
+.cv-area > summary.cv-area-head {
+  list-style: none;
+  cursor: pointer;
+  position: relative;
+  padding-right: 32px;
+}
+.cv-area > summary.cv-area-head::-webkit-details-marker {
+  display: none;
+}
+.cv-area > summary.cv-area-head::after {
+  content: 'expand_more';
+  font-family: 'Material Symbols Outlined';
+  font-size: 24px;
+  color: var(--texto-suave);
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease, color 0.15s ease;
+}
+.cv-area[open] > summary.cv-area-head::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+.cv-area-head h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.cv-area-meta {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+.cv-area .tile-grid {
+  margin-top: 14px;
+}
+.cv-area .tile {
+  background: var(--fondo);
+}
+
+/* --- Comparativa por Zona (Gráfico de barras apiladas) -------------------- */
+.service-chart-box {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  background: var(--superficie);
+}
+.stack-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.stack-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.stack-row-label {
+  width: 220px;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stack-row-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  height: 22px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--fondo);
+}
+.stack-seg {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+.stack-row-value {
+  width: 100px;
+  flex-shrink: 0;
+  text-align: right;
+}
+@media (max-width: 640px) {
+  .stack-row {
+    flex-wrap: wrap;
+  }
+  .stack-row-label {
+    width: 100%;
+    white-space: normal;
+  }
+  .stack-row-value {
+    width: auto;
+    margin-left: auto;
+  }
+}
+
+/* --- Diálogos de Gráficos (SVG) ------------------------------------------ */
+.chart-dialog-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  width: 100%;
+}
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chart-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.chart-legend-label {
+  flex: 1;
+  color: var(--texto);
+}
+.chart-legend-value {
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.chart-bar-rect {
+  transition: width 0.5s ease;
+}
+
+/* --- Mapa interactivo ---------------------------------------------------- */
+.mapa-seccion {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  min-height: 520px;
+}
+.mapa-marco {
+  position: relative;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+  min-height: 520px;
+}
+.mapa-lienzo {
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  background: var(--fondo);
+}
+.mapa-panel {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 20px;
+  background: var(--superficie);
+  overflow-y: auto;
+  max-height: 600px;
+}
+@media (max-width: 860px) {
+  .mapa-seccion {
+    grid-template-columns: 1fr;
+  }
+  .mapa-marco {
+    min-height: 380px;
+  }
+  .mapa-lienzo {
+    min-height: 380px;
+  }
+}

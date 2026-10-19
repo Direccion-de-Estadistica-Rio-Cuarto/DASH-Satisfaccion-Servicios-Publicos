@@ -1,466 +1,318 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mapa de Satisfacción con los Servicios · Gabinete Social + LMetB</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,1,0" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<style>
-:root{
-  --bg:#ffffff; --bg-alt:#f6f7f9; --ink:#14171a; --ink-soft:#5b6470; --line:#e5e8eb;
-  --brand:#009DE0; --brand-d:#0079ac; --brand-bg:#dbf1fb;
-  --tint-amarillo:#fdf6db;
-  --radius:14px; --shadow:0 1px 2px rgba(20,23,26,.06), 0 1px 12px rgba(20,23,26,.08);
-  --ease-standard:cubic-bezier(.4,0,.2,1);
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#0f1216; --bg-alt:#171b21; --ink:#eef1f4; --ink-soft:#a3adb8; --line:#262c34; --brand-bg:#102d39;
-    --tint-amarillo:#3c3310;
-  }
-}
-.material-symbols-outlined{
-  font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;
-  font-size:18px;line-height:1;display:inline-block;vertical-align:-3px;
-  -webkit-font-smoothing:antialiased;
-  font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%}
-body{
-  background:var(--bg); color:var(--ink);
-  font-family:"Google Sans","Product Sans","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
-  line-height:1.45;
-  display:flex; flex-direction:column; height:100vh; overflow:hidden;
-}
-a{color:inherit}
-.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
-.topbar{flex-shrink:0;position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
-.topbar .wrap{display:flex;flex-direction:column;align-items:stretch;padding-top:14px;padding-bottom:12px}
-.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-bottom:12px}
-.logo img{width:auto;display:block}
-.logo img.logo-gs{height:45px}
-.topnav{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
-.topnav a{display:flex;align-items:center;font-size:13.5px;font-weight:600;color:var(--ink-soft);text-decoration:none;white-space:nowrap;padding:4px 0;transition:color .2s var(--ease-standard),transform .15s var(--ease-standard)}
-.topnav a:hover{color:var(--brand)}
-.topnav a:active{transform:scale(.96)}
-.topnav a .material-symbols-outlined{font-size:16px;margin-right:4px}
-.metric-select{border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;background:var(--bg-alt);color:var(--ink);cursor:pointer;max-width:260px}
-.metric-hint{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--brand)}
-.app{flex:1;display:flex;min-height:0;position:relative}
-#map{flex:1;min-width:0}
-.leaflet-container{font-family:inherit;background:#eef2f5}
-#panel{
-  width:340px;flex-shrink:0;background:var(--bg);border-left:1px solid var(--line);
-  overflow-y:auto;padding:20px;
-}
-#panel .empty{color:#FF3CB2;font-size:13.5px;font-weight:600;padding-top:8px}
-#panel .empty .material-symbols-outlined{display:block;font-size:32px;margin:0 0 10px;opacity:.7}
-#panel h2{font-size:19px;font-weight:800;margin:0 0 2px;letter-spacing:-.01em}
-#panel .panel-sub{font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:16px}
-.panel-hero{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);position:relative;margin-bottom:18px}
-.panel-hero>div{position:relative}
-.panel-hero>div:first-child{border-top-left-radius:calc(var(--radius) - 1px);border-bottom-left-radius:calc(var(--radius) - 1px)}
-.panel-hero>div:last-child{border-top-right-radius:calc(var(--radius) - 1px);border-bottom-right-radius:calc(var(--radius) - 1px)}
-.panel-hero>div:hover,.panel-hero>div:focus-within{z-index:40}
-.isp-card{position:relative}
-.isp-card:hover,.isp-card:focus-within{z-index:40}
-.panel-hero div{background:var(--bg);padding:12px}
-.panel-hero strong{display:block;font-size:20px;font-weight:900}
-.panel-hero span{font-size:11px;color:var(--ink-soft);font-weight:600}
-.cat-block{margin-bottom:14px}
-.cat-chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:4px 10px;border-radius:999px;color:var(--ink);margin-bottom:8px;background:var(--tint-amarillo)}
-.cat-chip .material-symbols-outlined{color:#c99a00}
-.cat-chip .material-symbols-outlined{font-size:13px}
-.stat-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:4px 0;font-size:12.5px}
-.stat-row .label{color:var(--ink-soft);flex:1}
-.stat-row .val{font-weight:800;white-space:nowrap}
-.stat-row .val small{font-weight:400;color:var(--ink-soft);margin-left:4px}
-.no-data-note{font-size:12.5px;color:var(--ink-soft);background:var(--bg-alt);border-radius:10px;padding:12px;margin-top:8px}
-.legend{
-  position:absolute;left:14px;bottom:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;
-  padding:10px 14px;font-size:12px;box-shadow:var(--shadow);z-index:400;max-width:220px
-}
-.legend .legend-title{font-weight:700;margin-bottom:6px;font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em}
-.legend .legend-title .material-symbols-outlined{font-size:14px;vertical-align:-2px;margin-right:4px}
-.stat-row .material-symbols-outlined{font-size:15px;vertical-align:-3px;margin-right:5px}
-.icon-alumbrado{color:#F2C100}
-.icon-residuos{color:#FF3CB2}
-.icon-yuyos{color:#00C96B}
-.icon-calles{color:#F27C00}
-.icon-riego{color:#009DE0}
-.legend-scale{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:4px}
-.legend-scale div{flex:1}
-.legend-labels{display:flex;justify-content:space-between;color:var(--ink-soft);font-size:10.5px}
-.legend-gray{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:var(--ink-soft)}
-.legend-gray i{width:10px;height:10px;border-radius:3px;background:#cbd0d6;display:inline-block}
-@media (max-width:760px){
-  #panel{position:absolute;right:0;top:0;bottom:0;z-index:500;box-shadow:-4px 0 16px rgba(0,0,0,.15)}
-  #panel.hidden{display:none}
-  .app{position:relative}
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
 
-/* Semáforo de Gestión ISP (Top-2 Box) */
-.isp-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
-.isp-badge .material-symbols-outlined{font-size:13px;line-height:1;margin:0}
-.isp-optimo{background:#dcfce7;color:#15803d}
-.isp-intermedio{background:#fef3c7;color:#b45309}
-.isp-critico{background:#fee2e2;color:#b91c1c}
-.isp-nodata{background:var(--bg-alt);color:var(--ink-soft)}
-.isp-card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow)}
-.isp-card-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.isp-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin:8px 0 0;padding:8px 10px;background:var(--bg-alt);border-radius:6px;font-size:11px}
-.isp-breakdown-item{display:flex;justify-content:space-between;align-items:center}
-.isp-breakdown-label{color:var(--ink-soft);font-weight:500}
-.isp-breakdown-val{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  <title>Mapa Territorial de Satisfacción — Gobierno de Río Cuarto</title>
+  <meta name="description" content="Mapa interactivo barrial de satisfacción ciudadana con servicios públicos municipales en 14 zonas de Río Cuarto sobre cartografía de Argenmap.">
+  <meta name="author" content="Dir. de Estadística, Control de Calidad y Procesos — Gobierno de Río Cuarto">
+  <meta name="dcterms.modified" content="2026-10">
+  <meta name="ods" content="11, 16">
 
+  <!-- Anti-titileo del tema -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('tablero-tema');
+        if (t === 'claro' || t === 'oscuro') { document.documentElement.setAttribute('data-tema', t); }
+      } catch (e) {}
+    })();
+  </script>
 
-/* Unificación tipográfica: Párrafos de referencia y Ventanas de Información */
-p.raw-note{font-size:15px;line-height:1.55;color:var(--ink-soft)}
-.hero-stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:relative}
-.hero-stat-top .material-symbols-outlined{margin:0}
-.info-tip{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--brand);opacity:.85;transition:opacity .2s var(--ease-standard),color .2s var(--ease-standard),transform .15s var(--ease-standard);vertical-align:middle;background:none;border:none;padding:2px}
-.info-tip:hover,.info-tip:focus-visible{opacity:1;color:var(--brand-d);outline:none;transform:scale(1.1)}
-.info-tip > .material-symbols-outlined{font-size:17px;line-height:1}
-.info-tip-content{font-family:'Google Sans Code',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%) translateY(4px);background:#1a2028;color:#f8fafc;padding:12px 16px;border-radius:10px;font-size:15px;line-height:1.55;font-weight:400;width:max-content;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.2);pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s var(--ease-standard),transform .2s var(--ease-standard),visibility .2s;z-index:1000;text-align:left;white-space:normal}
-.info-tip-content strong{color:#ffffff;font-weight:700}
-.info-tip-content code{background:rgba(255,255,255,.18);padding:1px 5px;border-radius:4px;font-family:inherit;font-weight:700;color:#38bdf8}
-.info-tip-content::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border-width:6px;border-style:solid;border-color:#1a2028 transparent transparent transparent}
-.info-tip:hover .info-tip-content,.info-tip:focus-visible .info-tip-content{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+  <!-- Design system compartido -->
+  <link rel="stylesheet" href="css/fuentes.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/componentes.css">
+  <link rel="stylesheet" href="css/iconos.css">
+  <link rel="stylesheet" href="js/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/tablero.css">
 
-/* Tooltip dentro del panel lateral ajustado para no desbordar */
-#panel .info-tip-content{right:0;left:auto;transform:translateY(4px);max-width:270px;font-size:14px}
-#panel .info-tip:hover .info-tip-content,#panel .info-tip:focus-visible .info-tip-content{transform:translateY(0)}
-#panel .info-tip-content::after{left:auto;right:10px;transform:none}
-
-.info-tip.align-right .info-tip-content{left:auto;right:0;transform:translateX(0) translateY(4px)}
-.info-tip.align-right:hover .info-tip-content,.info-tip.align-right:focus-visible .info-tip-content{transform:translateX(0) translateY(0)}
-.info-tip.align-right .info-tip-content::after{left:auto;right:14px;transform:none}
-
-@media (max-width:640px){
-  .info-tip-content{max-width:250px;font-size:13.5px}
-}
-
-</style>
+  <style>
+    .mapa-pagina-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      min-height: 560px;
+      margin-top: 16px;
+      margin-bottom: 24px;
+    }
+    .mapa-pagina-canvas {
+      height: 560px;
+      width: 100%;
+      border-radius: var(--radio);
+      border: 1px solid var(--borde);
+      background: var(--fondo);
+      overflow: hidden;
+    }
+    .mapa-pagina-panel {
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      background: var(--superficie);
+      padding: 20px;
+      overflow-y: auto;
+      max-height: 560px;
+    }
+    @media (max-width: 860px) {
+      .mapa-pagina-layout {
+        grid-template-columns: 1fr;
+      }
+      .mapa-pagina-canvas {
+        height: 400px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<header class="topbar">
-  <div class="wrap">
-    <div class="logo">
-      <img class="logo-gs" src="assets/rio-cuarto-vos.png" alt="Río Cuarto Gobierno — VOS, Primero estás vos">
+  <a href="#contenido" class="saltar-contenido">Saltar al contenido</a>
+
+  <!-- ================= HEADER (igual en todos los tableros) ================ -->
+  <header class="encabezado">
+    <div class="contenedor">
+      <img class="logo" src="assets/img/logo-gobierno.webp" alt="Gobierno de Río Cuarto">
+      <span class="separador" aria-hidden="true"></span>
+      <div class="titulos">
+        <h1>Sec. Gestión y Participación Ciudadana</h1>
+        <p>Dir. de Estadística, Control de Calidad y Procesos</p>
+      </div>
+
+      <!-- Interruptor de modo claro/oscuro -->
+      <button type="button" class="boton-tema" id="boton-tema" aria-label="Cambiar entre modo claro y oscuro">
+        <svg class="icono-luna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>
+        </svg>
+        <svg class="icono-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+      </button>
     </div>
-    <nav class="topnav">
-      <a href="index.html#servicios"><span class="material-symbols-outlined">construction</span>Servicios</a>
-      <a href="index.html#consulta-vecinal"><span class="material-symbols-outlined">forum</span>Consulta Vecinal</a>
-      <a href="index.html"><span class="material-symbols-outlined">arrow_back</span>Volver al tablero</a>
-      <span class="metric-hint">Índice de Satisfacción Positiva (ISP Top-2 Box)
-  <span class="info-tip align-right" tabindex="0" role="tooltip" aria-label="Información sobre el mapa e ISP">
-    <span class="material-symbols-outlined">info</span>
-    <span class="info-tip-content" style="max-width:300px">
-      <strong>¿Qué es el ISP en el mapa?</strong><br>
-      El Índice de Satisfacción Positiva (% Muy bien + % Bien) calculado para cada sector barrial.<br><br>
-      <strong>Semáforo de Gestión:</strong><br>
-      <span class="material-symbols-outlined" style="color:#00C96B;font-size:15px;vertical-align:-3px">check_circle</span> <strong>Óptimo (≥ 75%):</strong> Mantenimiento.<br>
-      <span class="material-symbols-outlined" style="color:#F2C100;font-size:15px;vertical-align:-3px">warning</span> <strong>Intermedio (50% a 74.9%):</strong> Mejora puntual.<br>
-      <span class="material-symbols-outlined" style="color:#E63946;font-size:15px;vertical-align:-3px">error</span> <strong>Crítico (&lt; 50%):</strong> Reestructuración.<br><br>
-      <em>Haz clic en cualquier sector para ver el detalle.</em>
-    </span>
-  </span>
-</span>
-      <select id="metricSelect" class="metric-select"></select>
-    </nav>
-  </div>
-</header>
+  </header>
 
-<div class="app">
-  <div id="map"></div>
-  <aside id="panel">
-    <div class="empty">
-      <span class="material-symbols-outlined">touch_app</span>
-      Hacé clic en un sector del mapa para ver los indicadores relevados en ese barrio.
+  <!-- ========================= CONTENIDO ================================== -->
+  <main id="contenido">
+    <div class="contenedor">
+
+      <section class="intro">
+        <h2>Mapa territorial de satisfacción por barrio</h2>
+        <p class="bajada">Visualización cartográfica y coroplética de los 14 sectores barriales relevados en Río Cuarto, con indicadores de satisfacción por servicio público sobre la base oficial de Argenmap (IGN).</p>
+        <p class="actualizado"><span class="icono" aria-hidden="true">update</span> Actualizado a octubre de 2026: 14 zonas relevadas.</p>
+      </section>
+
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <a href="index.html" class="boton boton--secundario boton--chico">
+            <span class="icono" aria-hidden="true">arrow_back</span> Volver al tablero
+          </a>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <label for="metricSelect" style="font-weight:600;font-size:0.9rem">Servicio a visualizar:</label>
+          <select id="metricSelect" style="padding:7px 14px;border-radius:var(--radio);border:1px solid var(--borde);background:var(--superficie);color:var(--texto);font-family:inherit;font-weight:600">
+            <option value="alumbrado">Alumbrado público</option>
+            <option value="residuos">Recolección de residuos</option>
+            <option value="yuyos">Limpieza de baldíos / yuyos</option>
+            <option value="calle">Estado de calles</option>
+            <option value="riego">Riego y desagües</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mapa-pagina-layout">
+        <div id="map" class="mapa-pagina-canvas" role="region" aria-label="Mapa territorial interactivo de Río Cuarto"></div>
+        <aside id="panel" class="mapa-pagina-panel">
+          <h3 class="titulo-s" id="panelTitulo" style="margin-bottom:4px">Seleccioná un sector</h3>
+          <p class="texto-suave texto-chico" id="panelSub" style="margin-bottom:14px">Hacé clic sobre cualquier polígono en el mapa para ver los indicadores relevados en ese barrio.</p>
+          <div id="panelDetalle"></div>
+        </aside>
+      </div>
+
     </div>
-  </aside>
-  <div class="legend" id="legend"></div>
-</div>
+  </main>
 
-<script>
-const SECTORES = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"barrio":"Área 6 — Nueva Argentina","meta":"Abril 2026 · 114 muestras recolectadas","stats":{"muestras":114,"servicios":{"alumbrado":{"pct":28.9,"count":"114 respuestas","rawNote":"Muy bien 29 · Bien 52 · Mal 21 · Muy mal 12"},"basura":{"pct":29.8,"count":"114 respuestas","rawNote":"Muy bien 17 · Bien 63 · Mal 20 · Muy mal 14"},"yuyos":{"pct":65.8,"count":"114 respuestas","rawNote":"Muy bien 4 · Bien 27 · Mal 36 · Muy mal 39 · Ns/Nc 8"},"calle":{"pct":70.2,"count":"114 respuestas","rawNote":"Muy bien 5 · Bien 26 · Mal 33 · Muy mal 47 · Ns/Nc 3"},"riego":{"pct":59.6,"count":"114 respuestas","rawNote":"Muy bien 6 · Bien 32 · Mal 26 · Muy mal 42 · Ns/Nc 8"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3132802,-33.1437982],[-64.3118935,-33.1396165],[-64.311915,-33.1392751],[-64.3119012,-33.1364865],[-64.3116222,-33.1365314],[-64.3116222,-33.1343482],[-64.3116391,-33.1333069],[-64.3130661,-33.1331721],[-64.3129802,-33.132687],[-64.3129051,-33.1320041],[-64.3134738,-33.1318604],[-64.3137849,-33.1317436],[-64.3142248,-33.1316627],[-64.3144715,-33.1316627],[-64.3152655,-33.130899],[-64.3153728,-33.1305666],[-64.315523,-33.1303869],[-64.3155337,-33.1302342],[-64.3162311,-33.1300994],[-64.3169499,-33.1301264],[-64.3211667,-33.1320116],[-64.3214886,-33.1328921],[-64.3211775,-33.1329729],[-64.3239446,-33.1413727],[-64.3132802,-33.1437982]]]}},{"type":"Feature","properties":{"barrio":"Área 7 — Jardín (Oeste)","meta":"Mayo 2026 · 41 muestras recolectadas","stats":{"muestras":41,"servicios":{"alumbrado":{"pct":12.2,"count":"41 respuestas","rawNote":"Muy bien 10 · Bien 26 · Mal 3 · Muy mal 2"},"basura":{"pct":12.2,"count":"41 respuestas","rawNote":"Muy bien 13 · Bien 23 · Mal 5"},"yuyos":{"pct":29.3,"count":"41 respuestas","rawNote":"Muy bien 6 · Bien 22 · Mal 11 · Muy mal 1 · Ns/Nc 1"},"calle":{"pct":56.1,"count":"41 respuestas","rawNote":"Muy bien 4 · Bien 13 · Mal 18 · Muy mal 5 · Ns/Nc 1"},"riego":{"pct":41.5,"count":"41 respuestas","rawNote":"Muy bien 4 · Bien 19 · Mal 10 · Muy mal 7 · Ns/Nc 1"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3236907,-33.1076622],[-64.3258281,-33.1097462],[-64.3252702,-33.1102674],[-64.3248411,-33.1107706],[-64.3242188,-33.1117771],[-64.3239184,-33.1120467],[-64.3237467,-33.1127477],[-64.3234034,-33.1134127],[-64.3218025,-33.1145639],[-64.3186053,-33.1115804],[-64.3236907,-33.1076622]]]}},{"type":"Feature","properties":{"barrio":"Área 8 — Pueblo Alberdi (Mi Lugar, Mi Sueño 2 y 3)","meta":"Junio 2026 · 122 muestras recolectadas","stats":{"muestras":122,"servicios":{"alumbrado":{"pct":13.9,"count":"122 respuestas","rawNote":"Muy bien 39 · Bien 66 · Mal 13 · Muy mal 4"},"basura":{"pct":15.6,"count":"122 respuestas","rawNote":"Muy bien 25 · Bien 77 · Mal 15 · Muy mal 4 · Ns/Nc 1"},"yuyos":{"pct":40.2,"count":"122 respuestas","rawNote":"Muy bien 7 · Bien 60 · Mal 36 · Muy mal 13 · Ns/Nc 6"},"calle":{"pct":51.6,"count":"122 respuestas","rawNote":"Muy bien 13 · Bien 43 · Mal 37 · Muy mal 26 · Ns/Nc 3"},"riego":{"pct":46.7,"count":"122 respuestas","rawNote":"Muy bien 5 · Bien 27 · Mal 25 · Muy mal 32 · Ns/Nc 33"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3229752,-33.1484664],[-64.3208724,-33.1421244],[-64.3284687,-33.1405118],[-64.3292626,-33.1429912],[-64.330078,-33.1427936],[-64.3317036,-33.1479985],[-64.3276159,-33.1488698],[-64.3276052,-33.1475044],[-64.3260217,-33.1478376],[-64.3264294,-33.1491491],[-64.3249059,-33.1494725],[-64.3244768,-33.1481969],[-64.3229752,-33.1484664]]]}},{"type":"Feature","properties":{"barrio":"Área 10 — San Pantaleón","meta":"Julio 2026 · 63 muestras recolectadas","stats":{"muestras":63,"servicios":{"alumbrado":{"pct":20.6,"count":"63 respuestas","rawNote":"Muy bien 14 · Bien 36 · Mal 6 · Muy mal 7"},"basura":{"pct":0,"count":"63 respuestas","rawNote":"Muy bien 31 · Bien 32"},"yuyos":{"pct":36.5,"count":"63 respuestas","rawNote":"Muy bien 7 · Bien 29 · Mal 14 · Muy mal 9 · Ns/Nc 4"},"calle":{"pct":61.9,"count":"63 respuestas","rawNote":"Muy bien 9 · Bien 15 · Mal 24 · Muy mal 15"},"riego":{"pct":50.8,"count":"63 respuestas","rawNote":"Muy bien 3 · Bien 11 · Mal 17 · Muy mal 15 · Ns/Nc 17"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3371823,-33.0924584],[-64.339173,-33.0942137],[-64.3383243,-33.0948599],[-64.3392771,-33.0957465],[-64.3368846,-33.0975868],[-64.3325287,-33.0935152],[-64.3337196,-33.0925984],[-64.3336767,-33.0924905],[-64.3371823,-33.0924584]]]}},{"type":"Feature","properties":{"barrio":"Área 11 — Quintitas Golf","meta":"Julio 2026 · 41 muestras recolectadas","stats":{"muestras":41,"servicios":{"alumbrado":{"pct":12.2,"count":"41 respuestas","rawNote":"Muy bien 19 · Bien 17 · Mal 5"},"basura":{"pct":12.2,"count":"41 respuestas","rawNote":"Muy bien 19 · Bien 17 · Mal 3 · Muy mal 2"},"yuyos":{"pct":34.1,"count":"41 respuestas","rawNote":"Muy bien 7 · Bien 19 · Mal 13 · Muy mal 1 · Ns/Nc 1"},"calle":{"pct":26.8,"count":"41 respuestas","rawNote":"Muy bien 9 · Bien 21 · Mal 9 · Muy mal 2"},"riego":{"pct":48.8,"count":"41 respuestas","rawNote":"Muy bien 6 · Bien 14 · Mal 10 · Muy mal 10 · Ns/Nc 1"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.385961,-33.1142734],[-64.3818112,-33.1152605],[-64.3809402,-33.1127267],[-64.3805325,-33.1114236],[-64.3801409,-33.1099229],[-64.379937,-33.1095364],[-64.3797654,-33.109186],[-64.3787515,-33.106391],[-64.3793148,-33.1062203],[-64.3801355,-33.106018],[-64.3860462,-33.1045422],[-64.3860549,-33.105949],[-64.3859476,-33.10736],[-64.3859369,-33.1077374],[-64.3860657,-33.1081868],[-64.3858833,-33.1082587],[-64.3859476,-33.1085912],[-64.3859745,-33.1092966],[-64.385961,-33.1142734]]]}},{"type":"Feature","properties":{"barrio":"Área 1 — Bo. San Martín — Sector 1","meta":"Enero 2026 · 49 muestras recolectadas · Calles: Manco Capac, Miguel Ángel, José Verdi, E. Jenner, Lope de Vega, Paul Harris","stats":{"muestras":49,"servicios":{"alumbrado":{"pct":2,"count":"49 respuestas","rawNote":"Muy bien 28 · Bien 16 · Regular 4 · Mal 1"},"basura":{"pct":0,"count":"49 respuestas","rawNote":"Muy bien 35 · Bien 13 · Regular 1"},"yuyos":{"pct":16.3,"count":"49 respuestas","rawNote":"Muy bien 18 · Bien 14 · Regular 8 · Mal 8 · Ns/Nc 1"},"calle":{"pct":20.4,"count":"49 respuestas","rawNote":"Muy bien 14 · Bien 7 · Regular 18 · Mal 10"},"riego":null}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3426687,-33.0968538],[-64.3437791,-33.0978694],[-64.3388992,-33.1015123],[-64.3378906,-33.1005417],[-64.3426687,-33.0968538]]]}},{"type":"Feature","properties":{"barrio":"Área 2 — Bo. San Martín — Sector 2","meta":"Enero 2026 · 43 muestras recolectadas · Calles: Juana Azurduy de Padilla, Misiones, S. De La Barrera, E. Jenner, E. Jautz, S. de Thompson, Colombia, Santa Cruz, San Luis, México","stats":{"muestras":43,"servicios":{"alumbrado":{"pct":11.6,"count":"43 respuestas","rawNote":"Muy bien 20 · Bien 18 · Mal 5"},"basura":{"pct":9.3,"count":"43 respuestas","rawNote":"Muy bien 21 · Bien 18 · Mal 4"},"yuyos":{"pct":27.9,"count":"43 respuestas","rawNote":"Muy bien 5 · Bien 12 · Regular 13 · Mal 12 · Ns/Nc 1"},"calle":{"pct":53.5,"count":"43 respuestas","rawNote":"Muy bien 2 · Bien 7 · Regular 11 · Mal 23"},"riego":{"pct":60.5,"count":"43 respuestas","rawNote":"Muy bien 3 · Bien 7 · Regular 7 · Mal 26"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3279101,-33.1116462],[-64.3258066,-33.1097102],[-64.3282319,-33.1078537],[-64.3278242,-33.1074583],[-64.3284251,-33.1070269],[-64.3266012,-33.1053913],[-64.3278672,-33.1044386],[-64.3296267,-33.1061462],[-64.3302275,-33.1056609],[-64.3316866,-33.1070449],[-64.3292619,-33.1088783],[-64.3303777,-33.1099027],[-64.3279101,-33.1116462]]]}},{"type":"Feature","properties":{"barrio":"Área 3 — Fray Quirico Porreca (Banda Norte / La Agustina)","meta":"Enero 2026 · 48 muestras recolectadas · Calles: Fray Quirico Porreca, Laguna Blanca, Av. Marcelo T. de Alvear","stats":{"muestras":48,"servicios":{"alumbrado":{"pct":6.3,"count":"sobre encuestados","rawNote":"Muy bien 25.0% · Bien 56.3% · Regular 10.4% · Mal 6.3% · Ns/Nc 2.1%"},"basura":{"pct":8.3,"count":"sobre encuestados","rawNote":"Muy bien 20.8% · Bien 54.2% · Regular 16.7% · Mal 8.3%"},"yuyos":{"pct":20.8,"count":"sobre encuestados","rawNote":"Muy bien 4.2% · Bien 33.3% · Regular 25.0% · Mal 20.8% · Ns/Nc 16.7%"},"calle":{"pct":37.5,"count":"sobre encuestados","rawNote":"Muy bien 2.1% · Bien 22.9% · Regular 37.5% · Mal 37.5%"},"riego":null}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3263347,-33.1183337],[-64.339542,-33.1083467],[-64.3397566,-33.1085084],[-64.3264529,-33.1185552],[-64.3263347,-33.1183337]]]}},{"type":"Feature","properties":{"barrio":"Área 4 — Bo. Castelli 1","meta":"Febrero 2026 · 33 muestras recolectadas","stats":{"muestras":33,"servicios":{"alumbrado":{"pct":9.1,"count":"sobre encuestados","rawNote":"Muy bien 33.3% · Bien 51.5% · Regular 6.1% · Mal 9.1%"},"basura":{"pct":6.1,"count":"sobre encuestados","rawNote":"Muy bien 24.2% · Bien 60.6% · Regular 9.1% · Mal 6.1%"},"yuyos":{"pct":15.2,"count":"sobre encuestados","rawNote":"Muy bien 3.0% · Bien 54.5% · Regular 27.3% · Mal 15.2%"},"calle":{"pct":54.5,"count":"sobre encuestados","rawNote":"Muy bien 3.0% · Bien 12.1% · Regular 27.3% · Mal 54.5% · Ns/Nc 3.1%"},"riego":{"pct":39.4,"count":"sobre encuestados","rawNote":"Muy bien 3.1% · Bien 24.2% · Regular 33.3% · Mal 39.4%"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3791223,-33.1441295],[-64.3750454,-33.1422609],[-64.3760324,-33.1408775],[-64.3758608,-33.1402486],[-64.3765474,-33.140069],[-64.3771268,-33.1391347],[-64.3779851,-33.138955],[-64.3821145,-33.1408592],[-64.380076,-33.1440034],[-64.3791223,-33.1441295]]]}},{"type":"Feature","properties":{"barrio":"Área 5 — Bo. San Martín — Sector 3","meta":"Febrero 2026 · muestras no especificadas","stats":{"muestras":null,"servicios":{"alumbrado":{"pct":10.9,"count":"sobre encuestados","rawNote":"Muy bien 21.7% · Bien 41.3% · Regular 23.9% · Mal 10.9% · Ns/Nc 2.2%"},"basura":{"pct":10.9,"count":"sobre encuestados","rawNote":"Muy bien 26.1% · Bien 23.9% · Regular 37.0% · Mal 10.9% · Ns/Nc 2.2%"},"yuyos":{"pct":15.2,"count":"sobre encuestados","rawNote":"Muy bien 6.5% · Bien 23.9% · Regular 52.2% · Mal 15.2% · Ns/Nc 2.2%"},"calle":{"pct":26.1,"count":"sobre encuestados","rawNote":"Muy bien 6.5% · Bien 19.6% · Regular 47.8% · Mal 26.1%"},"riego":{"pct":21.7,"count":"sobre encuestados","rawNote":"Muy bien 10.9% · Bien 13.0% · Regular 52.2% · Mal 21.7% · Ns/Nc 2.2%"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.335819,-33.1148651],[-64.3360336,-33.1150449],[-64.3287165,-33.12067],[-64.3285234,-33.1204364],[-64.335819,-33.1148651]]]}},{"type":"Feature","properties":{"barrio":"Área 9 — Goretti","meta":"Junio 2026 · 55 muestras recolectadas","stats":{"muestras":55,"servicios":{"alumbrado":{"pct":7.3,"count":"55 respuestas","rawNote":"Muy bien 19 · Bien 32 · Mal 4"},"basura":{"pct":16.4,"count":"55 respuestas","rawNote":"Muy bien 15 · Bien 31 · Mal 8 · Muy mal 1"},"yuyos":{"pct":50.9,"count":"55 respuestas","rawNote":"Muy bien 6 · Bien 19 · Mal 21 · Muy mal 7 · Ns/Nc 2"},"calle":{"pct":43.6,"count":"55 respuestas","rawNote":"Muy bien 5 · Bien 26 · Mal 22 · Muy mal 2"},"riego":{"pct":60,"count":"55 respuestas","rawNote":"Muy bien 7 · Bien 14 · Mal 21 · Muy mal 12 · Ns/Nc 1"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3735153,-33.1483422],[-64.378849,-33.1472081],[-64.3835804,-33.1461661],[-64.3835375,-33.1534061],[-64.3833444,-33.1538193],[-64.3826363,-33.1546097],[-64.3753407,-33.1544481],[-64.3735153,-33.1483422]]]}},{"type":"Feature","properties":{"barrio":"Área 12 — Bo. Alem","meta":"Agosto 2026 · 78 muestras recolectadas","stats":{"muestras":78,"servicios":{"alumbrado":{"pct":0,"count":"78 respuestas","rawNote":"Muy bien 31 · Bien 47"},"basura":{"pct":9,"count":"78 respuestas","rawNote":"Muy bien 21 · Bien 50 · Mal 5 · Muy mal 2"},"yuyos":{"pct":25.6,"count":"78 respuestas","rawNote":"Muy bien 7 · Bien 51 · Mal 15 · Muy mal 5"},"calle":{"pct":41,"count":"78 respuestas","rawNote":"Muy bien 6 · Bien 40 · Mal 19 · Muy mal 13"},"riego":{"pct":35.9,"count":"78 respuestas","rawNote":"Muy bien 4 · Bien 39 · Mal 21 · Muy mal 7 · Ns/Nc 7"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3425,-33.1400883],[-64.33947,-33.1483404],[-64.3392769,-33.1482506],[-64.3345991,-33.1493734],[-64.3323582,-33.1424018],[-64.3425,-33.1400883]]]}},{"type":"Feature","properties":{"barrio":"Área 13 — Bo. Jardín Norte","meta":"Septiembre 2026 · 95 muestras recolectadas","stats":{"muestras":95,"servicios":{"alumbrado":{"pct":24.2,"count":"95 respuestas","rawNote":"Muy bien 20 · Bien 52 · Mal 10 · Muy mal 13"},"basura":{"pct":18.9,"count":"95 respuestas","rawNote":"Muy bien 21 · Bien 56 · Mal 14 · Muy mal 4"},"yuyos":{"pct":41.1,"count":"95 respuestas","rawNote":"Muy bien 13 · Bien 41 · Mal 28 · Muy mal 11 · Ns/Nc 2"},"calle":{"pct":44.2,"count":"95 respuestas","rawNote":"Muy bien 8 · Bien 44 · Mal 32 · Muy mal 10 · Ns/Nc 1"},"riego":{"pct":47.4,"count":"95 respuestas","rawNote":"Muy bien 9 · Bien 39 · Mal 25 · Muy mal 20 · Ns/Nc 2"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3271967,-33.0922981],[-64.3271753,-33.088343],[-64.3403503,-33.088343],[-64.3403503,-33.0877138],[-64.3428608,-33.0877138],[-64.3428394,-33.0898172],[-64.3443629,-33.0898172],[-64.3443629,-33.0914352],[-64.3403288,-33.0914352],[-64.3403288,-33.092352],[-64.3375823,-33.092352],[-64.3375608,-33.0905723],[-64.3368742,-33.0905723],[-64.3368742,-33.092334],[-64.3362304,-33.092334],[-64.3362304,-33.0905363],[-64.3327328,-33.0905723],[-64.3327972,-33.09237],[-64.3271967,-33.0922981]]]}},{"type":"Feature","properties":{"barrio":"Área 14 — Bo. Industrial","meta":"Octubre 2026 · 32 muestras recolectadas","stats":{"muestras":32,"servicios":{"alumbrado":{"pct":0,"count":"32 respuestas","rawNote":"Muy bien 17 · Bien 15"},"basura":{"pct":3.1,"count":"32 respuestas","rawNote":"Muy bien 19 · Bien 12 · Mal 1"},"yuyos":{"pct":18.8,"count":"32 respuestas","rawNote":"Muy bien 14 · Bien 10 · Mal 4 · Muy mal 2 · Ns/Nc 2"},"calle":{"pct":28.1,"count":"32 respuestas","rawNote":"Muy bien 9 · Bien 14 · Mal 3 · Muy mal 6"},"riego":{"pct":6.3,"count":"32 respuestas","rawNote":"Muy bien 1 · Bien 3 · Muy mal 2 · Ns/Nc 26"}}}},"geometry":{"type":"Polygon","coordinates":[[[-64.3556014,-33.1454393],[-64.356391,-33.145928],[-64.3578272,-33.15038],[-64.348654,-33.1524459],[-64.3471556,-33.1473365],[-64.3556014,-33.1454393]]]}}]};
-const fmtN = n => (n==null ? '—' : n.toLocaleString('es-AR'));
-const fmtPct = v => (v==null ? 's/d' : v.toFixed(1)+'%');
+  <!-- ================= FOOTER (igual en todos los tableros) ================ -->
+  <footer class="pie">
+    <div class="contenedor">
+      <div class="pie-fila pie-fila--superior">
+        <div class="pie-escudos">
+          <img src="assets/img/escudo-secretaria.png" alt="Río Cuarto Gobierno — Secretaría de Gestión y Participación Ciudadana">
+          <img src="assets/img/escudo-datos.png" alt="Datos Río Cuarto">
+        </div>
+        <div class="pie-acciones">
+          <button type="button" class="boton boton--secundario boton--pildora" data-abrir="modal-ia">
+            <span class="icono" aria-hidden="true">auto_awesome</span>
+            Río Cuarto IA
+          </button>
+          <button type="button" class="boton boton--secundario boton--pildora" data-abrir="modal-ods">
+            <img src="assets/img/ods/ods-rueda.png" alt="" width="20" height="20">
+            Río Cuarto ODS
+          </button>
+        </div>
+      </div>
 
-function parseRawBreakdown(rawNote){
-  if(!rawNote) return null;
-  const parts = rawNote.split('·').map(s => s.trim()).filter(Boolean);
-  let muyBien = 0, bien = 0, regular = 0, mal = 0, muyMal = 0;
-  parts.forEach(seg => {
-    const m = seg.match(/^(.*?)\s+([\d.,]+)(%?)$/);
-    if(!m) return;
-    const label = m[1].trim();
-    const val = parseFloat(m[2].replace(',', '.'));
-    if(/muy bien/i.test(label)) muyBien = val;
-    else if(/^bien$/i.test(label)) bien = val;
-    else if(/regular/i.test(label)) regular = val;
-    else if(/^mal$/i.test(label)) mal = val;
-    else if(/muy mal/i.test(label)) muyMal = val;
-  });
-  const total = muyBien + bien + regular + mal + muyMal;
-  if(total <= 0) return null;
-  return {
-    isp: +(100 * (muyBien + bien) / total).toFixed(1),
-    muyBien: +(100 * muyBien / total).toFixed(1),
-    bien: +(100 * bien / total).toFixed(1),
-    regular: +(100 * regular / total).toFixed(1),
-    disconformidad: +(100 * (mal + muyMal) / total).toFixed(1),
-    total
-  };
-}
+      <div class="pie-fila pie-fila--inferior">
+        <div class="pie-textos">
+          <p><strong>Elaboración:</strong> Sec. Gestión y Participación Ciudadana · Dir. de Estadística, Control de Calidad y Procesos</p>
+          <p><strong>Fuente:</strong> Encuesta Social y Consulta Vecinal sobre cordón cuneta (Dirección de Estadística, Control de Calidad y Procesos · Gobierno de Río Cuarto, 2026). Cartografía base: Instituto Geográfico Nacional (Argenmap).</p>
+        </div>
+        <nav class="enlaces-paginas" aria-label="Páginas de la plantilla">
+          <a href="guia-diseno.html">Sistema de diseño</a>
+          <a href="index.html">Tablero principal</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
 
-function calcServiceISP(serv){
-  if(!serv || !serv.rawNote) return null;
-  const b = parseRawBreakdown(serv.rawNote);
-  return b ? b.isp : null;
-}
+  <!-- Modal IA -->
+  <dialog class="modal" id="modal-ia" aria-labelledby="modal-ia-titulo">
+    <div class="modal-cuerpo">
+      <header class="modal-cabecera">
+        <h2 id="modal-ia-titulo"><span class="icono" aria-hidden="true">auto_awesome</span> Río Cuarto IA</h2>
+        <form method="dialog"><button class="modal-cerrar" aria-label="Cerrar"><span class="icono" aria-hidden="true">close</span></button></form>
+      </header>
+      <h3 class="titulo-m">Declaración de uso de Inteligencia Artificial</h3>
+      <p>El desarrollo del presente mapa contó con el apoyo de herramientas de inteligencia artificial generativa (GenAI) —proveedor: Google DeepMind; herramienta: Antigravity; lenguaje de programación: HTML, CSS y JavaScript; modelos: Gemini 2.5 Pro y Claude Sonnet 5— para asistir en el procesamiento y control de calidad de las bases vectoriales y estadísticas de los 14 sectores, la integración cartográfica con Argenmap, y la implementación de componentes accesibles acordes a la identidad institucional municipal. La provisión de los datos de campo, la cartografía base y la validación final estuvieron a cargo del equipo técnico municipal.</p>
+      <p>Los contenidos generados o asistidos por la herramienta fueron revisados, verificados y, cuando correspondió, modificados por los autores. Los autores asumen plena responsabilidad por el contenido final del trabajo.</p>
+    </div>
+  </dialog>
 
-function calcZoneGlobalISP(stats){
-  if(!stats || !stats.servicios) return null;
-  const vals = Object.values(stats.servicios).map(calcServiceISP).filter(v => v != null);
-  if(!vals.length) return null;
-  return +(vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1);
-}
+  <!-- Modal ODS -->
+  <dialog class="modal" id="modal-ods" aria-labelledby="modal-ods-titulo">
+    <div class="modal-cuerpo">
+      <header class="modal-cabecera">
+        <h2 id="modal-ods-titulo"><img src="assets/img/ods/ods-rueda.png" alt="" width="28" height="28"> Río Cuarto ODS</h2>
+        <form method="dialog"><button class="modal-cerrar" aria-label="Cerrar"><span class="icono" aria-hidden="true">close</span></button></form>
+      </header>
+      <p>Este tablero contribuye al seguimiento de los siguientes Objetivos de Desarrollo Sostenible (ODS) de la Agenda 2030, en cumplimiento de la <a href="https://drive.google.com/file/d/1-JUX_knfakCrvlmDB0gHUXXLpbqkpIaY/view?usp=sharing" target="_blank" rel="noopener">Ordenanza N° 148/2021<span class="solo-lectores"> (se abre en una pestaña nueva)</span></a>:</p>
+      <ul class="ods-grilla">
+        <li><img src="assets/img/ods/ods-11.png" alt="ODS 11: Ciudades y comunidades sostenibles" width="240" height="240"></li>
+        <li><img src="assets/img/ods/ods-16.png" alt="ODS 16: Paz, justicia e instituciones sólidas" width="240" height="240"></li>
+      </ul>
+    </div>
+  </dialog>
 
-function getIspSemaforo(isp){
-  if(isp == null) return { status:'sin-dato', chip:'Sin datos', icon:'help_outline', color:'#cbd0d6', badgeClass:'isp-nodata', strategy:'-' };
-  if(isp >= 75) return { status:'optimo', chip:'Óptimo', icon:'check_circle', color:'#00C96B', badgeClass:'isp-optimo', strategy:'Mantenimiento y consolidación' };
-  if(isp >= 50) return { status:'intermedio', chip:'Intermedio', icon:'warning', color:'#F2C100', badgeClass:'isp-intermedio', strategy:'Optimización y planes de mejora puntual' };
-  return { status:'critico', chip:'Crítico', icon:'error', color:'#E63946', badgeClass:'isp-critico', strategy:'Reestructuración prioritaria' };
-}
+  <!-- Scripts del sistema -->
+  <script src="js/tema.js"></script>
+  <script src="js/pie.js"></script>
+  <script src="js/vendor/leaflet/leaflet.js"></script>
+  <script src="js/tablero.js"></script>
+  <script>
+  (function() {
+    'use strict';
+    const map = L.map('map', { zoomControl: true, minZoom: 10, maxZoom: 17 }).setView([-33.125, -64.35], 13);
+    
+    // Mosaicos locales de Argenmap (IGN)
+    L.tileLayer('assets/mapa/{z}/{x}/{y}.png', {
+      minZoom: 10,
+      maxZoom: 17,
+      attribution: 'Mapa base: © <a href="https://www.ign.gob.ar" target="_blank" rel="noopener">Instituto Geográfico Nacional</a> (Argenmap)'
+    }).addTo(map);
 
-const METRICS = [
-  { key: 'isp-global', label: 'ISP Global — Aprobación promedio', icon: 'verified', iconCls: '', get: s => calcZoneGlobalISP(s), isPct: true, isIsp: true },
-  { key: 'serv-alumbrado', label: 'Alumbrado público (ISP)', icon: 'table_lamp', iconCls: 'icon-alumbrado', get: s => calcServiceISP(s.servicios.alumbrado), isPct: true, isIsp: true },
-  { key: 'serv-basura', label: 'Recolección de residuos (ISP)', icon: 'delete_sweep', iconCls: 'icon-residuos', get: s => calcServiceISP(s.servicios.basura), isPct: true, isIsp: true },
-  { key: 'serv-yuyos', label: 'Limpieza de baldíos / yuyos (ISP)', icon: 'grass', iconCls: 'icon-yuyos', get: s => calcServiceISP(s.servicios.yuyos), isPct: true, isIsp: true },
-  { key: 'serv-calle', label: 'Estado de calles / bacheo (ISP)', icon: 'unpaved_road', iconCls: 'icon-calles', get: s => calcServiceISP(s.servicios.calle), isPct: true, isIsp: true },
-  { key: 'serv-riego', label: 'Riego y desagües (ISP)', icon: 'water', iconCls: 'icon-riego', get: s => calcServiceISP(s.servicios.riego), isPct: true, isIsp: true },
-  { key: 'muestras', label: 'Muestras recolectadas', icon: 'fact_check', iconCls: '', get: s => s.muestras, isPct: false, isIsp: false },
-];
+    let geoLayer = null;
+    let sectoresData = null;
 
-const sel = document.getElementById('metricSelect');
-METRICS.forEach(m => {
-  const opt = document.createElement('option');
-  opt.value = m.key; opt.textContent = m.label;
-  sel.appendChild(opt);
-});
+    const METRIC_LABELS = {
+      alumbrado: 'Alumbrado público',
+      residuos: 'Recolección de residuos',
+      yuyos: 'Limpieza de baldíos / yuyos',
+      calle: 'Estado de calles',
+      riego: 'Riego y desagües'
+    };
 
-function lerp(a,b,t){ return Math.round(a+(b-a)*t); }
-function lerpColor(hex1,hex2,t){
-  const c1=[1,3,5].map(i=>parseInt(hex1.slice(i,i+2),16));
-  const c2=[1,3,5].map(i=>parseInt(hex2.slice(i,i+2),16));
-  const c=c1.map((v,i)=>lerp(v,c2[i],t));
-  return 'rgb('+c.join(',')+')';
-}
-
-let currentMetric = METRICS[0];
-
-function colorFor(value, min, max){
-  if(value == null) return '#cbd0d6';
-  if(currentMetric.isIsp){
-    return getIspSemaforo(value).color;
-  }
-  const t = max > min ? (value - min) / (max - min) : 0.5;
-  return lerpColor('#dbf1fb', '#009DE0', Math.max(0, Math.min(1, t)));
-}
-
-function renderLegend(min, max){
-  if(currentMetric.isIsp){
-    document.getElementById('legend').innerHTML =
-      '<div class="legend-title">'+
-        '<span class="material-symbols-outlined '+currentMetric.iconCls+'">'+currentMetric.icon+'</span>'+currentMetric.label+
-        '<span class="info-tip" tabindex="0" role="tooltip" aria-label="Información sobre el Semáforo" style="margin-left:4px">'+
-          '<span class="material-symbols-outlined">info</span>'+
-          '<span class="info-tip-content" style="max-width:260px">'+
-            '<strong>Semáforo de Gestión:</strong><br>Prioriza acciones según el nivel de aprobación ciudadana (Top-2 Box).'+
-          '</span>'+
-        '</span>'+
-      '</div>'+
-      '<div style="font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:6px">Semáforo de Gestión (Top-2 Box)</div>'+
-      '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:6px">'+
-        '<div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#00C96B;flex-shrink:0"></span><strong>&ge; 75%</strong> Óptimo (Mantenimiento)</div>'+
-        '<div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#F2C100;flex-shrink:0"></span><strong>50% – 74.9%</strong> Intermedio (Mejora)</div>'+
-        '<div style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#E63946;flex-shrink:0"></span><strong>&lt; 50%</strong> Crítico (Reestructuración)</div>'+
-      '</div>'+
-      '<div class="legend-gray"><i></i> Sin dato para esta métrica</div>';
-    return;
-  }
-  const steps = 5;
-  const bars = [];
-  for(let i=0;i<steps;i++){
-    bars.push('<div style="background:'+colorFor(min+(max-min)*i/(steps-1), min, max)+'"></div>');
-  }
-  document.getElementById('legend').innerHTML =
-    '<div class="legend-title"><span class="material-symbols-outlined '+currentMetric.iconCls+'">'+currentMetric.icon+'</span>'+currentMetric.label+'</div>'+
-    '<div class="legend-scale">'+bars.join('')+'</div>'+
-    '<div class="legend-labels"><span>'+fmtN(Math.round(min))+'</span><span>'+fmtN(Math.round(max))+'</span></div>'+
-    '<div class="legend-gray"><i></i> Sin dato para esta métrica</div>';
-}
-
-let geoLayer;
-const map = L.map('map', { zoomControl: true }).setView([-33.125, -64.35], 13);
-L.tileLayer('https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/mapabase_gris@EPSG:3857@png/{z}/{x}/{-y}.png', {
-  attribution: '&copy; <a href="https://www.ign.gob.ar/AreaServicios/Argenmap/IntroduccionV2" target="_blank" rel="noopener">IGN Argentina</a> — Argenmap',
-  minZoom: 3,
-  maxZoom: 18,
-}).addTo(map);
-
-function styleFor(feature){
-  const stats = feature.properties.stats;
-  const value = stats ? currentMetric.get(stats) : null;
-  return {
-    fillColor: colorFor(value, currentMetric._min, currentMetric._max),
-    fillOpacity: stats ? 0.72 : 0.35,
-    color: stats ? '#0079ac' : '#8a919a',
-    weight: 1.4,
-    opacity: 0.9,
-  };
-}
-
-function computeMinMax(metric){
-  const values = SECTORES.features
-    .map(f => f.properties.stats ? metric.get(f.properties.stats) : null)
-    .filter(v => v != null);
-  metric._min = values.length ? Math.min(...values) : 0;
-  metric._max = values.length ? Math.max(...values) : 1;
-}
-
-function categoryBlock(chipClass, icon, title, rows){
-  return '<div class="cat-block">'+
-    '<span class="cat-chip '+chipClass+'"><span class="material-symbols-outlined">'+icon+'</span>'+title+'</span>'+
-    rows.map(([label,val,extra,rowIcon,rowIconCls]) => (
-      '<div class="stat-row"><span class="label">'+(rowIcon ? '<span class="material-symbols-outlined '+(rowIconCls||'')+'">'+rowIcon+'</span>' : '')+label+'</span><span class="val">'+val+(extra ? ' <small>('+extra+')</small>' : '')+'</span></div>'
-    )).join('') +
-  '</div>';
-}
-
-function statBlocksHTML(props){
-  const s = props.stats;
-  const gIsp = calcZoneGlobalISP(s);
-  const semGlobal = getIspSemaforo(gIsp);
-
-  const items = [
-    { label: 'Alumbrado público', data: s.servicios.alumbrado, icon: 'table_lamp', iconCls: 'icon-alumbrado' },
-    { label: 'Recolección de residuos', data: s.servicios.basura, icon: 'delete_sweep', iconCls: 'icon-residuos' },
-    { label: 'Limpieza de baldíos / yuyos', data: s.servicios.yuyos, icon: 'grass', iconCls: 'icon-yuyos' },
-    { label: 'Estado de calles (bacheo)', data: s.servicios.calle, icon: 'unpaved_road', iconCls: 'icon-calles' },
-    { label: 'Riego y desagües', data: s.servicios.riego, icon: 'water', iconCls: 'icon-riego' },
-  ];
-
-  const servCards = items.map(item => {
-    if(!item.data || !item.data.rawNote){
-      return '<div class="isp-card"><div class="isp-card-head"><span class="material-symbols-outlined '+(item.iconCls||'')+'">'+item.icon+'</span><strong style="font-size:12.5px">'+item.label+'</strong><span class="isp-badge isp-nodata" style="margin-left:auto">s/d</span></div></div>';
+    function getColor(pct) {
+      if (pct == null) return 'rgba(128, 128, 128, 0.3)';
+      if (pct >= 75) return 'rgba(0, 131, 0, 0.75)';
+      if (pct >= 50) return 'rgba(237, 161, 0, 0.75)';
+      return 'rgba(209, 67, 66, 0.75)';
     }
-    const b = parseRawBreakdown(item.data.rawNote);
-    const sem = getIspSemaforo(b.isp);
-    return '<div class="isp-card">'+
-      '<div class="isp-card-head">'+
-        '<span class="material-symbols-outlined '+(item.iconCls||'')+'">'+item.icon+'</span>'+
-        '<span style="font-weight:700;font-size:12.5px;flex:1">'+item.label+'</span>'+
-        '<span class="isp-badge '+sem.badgeClass+'"><span class="material-symbols-outlined" style="font-size:13px">'+sem.icon+'</span> '+sem.chip+'</span>'+
-      '</div>'+
-      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin:4px 0">'+
-        '<span style="font-size:11px;color:var(--ink-soft);font-weight:600">Aprobación (ISP):'+
-          '<span class="info-tip" tabindex="0" style="margin-left:4px"><span class="material-symbols-outlined" style="font-size:13px">info</span><span class="info-tip-content"><strong>ISP Top-2 Box:</strong> % Muy bien + % Bien sobre respuestas válidas en este barrio.</span></span>'+
-        '</span>'+
-        '<strong style="font-size:17px;font-weight:900;color:'+sem.color+'">'+fmtPct(b.isp)+'</strong>'+
-      '</div>'+
-      '<div class="bar-track" style="margin:2px 0 8px"><div class="bar-fill" style="width:'+b.isp+'%;background:'+sem.color+'"></div></div>'+
-      '<div class="isp-breakdown">'+
-        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Excelencia (Muy bien):</span><span class="isp-breakdown-val">'+fmtPct(b.muyBien)+'</span></div>'+
-        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Aprobación (Bien):</span><span class="isp-breakdown-val">'+fmtPct(b.bien)+'</span></div>'+
-        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Oportunidad (Regular):</span><span class="isp-breakdown-val">'+fmtPct(b.regular)+'</span></div>'+
-        '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Disconformidad:</span><span class="isp-breakdown-val" style="color:#b91c1c">'+fmtPct(b.disconformidad)+'</span></div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
 
-  return '<div class="panel-hero">'+
-      '<div><strong>'+(s.muestras!=null ? fmtN(s.muestras) : 's/d')+'</strong><span>muestras recolectadas</span></div>'+
-      '<div><strong style="color:'+semGlobal.color+'">'+(gIsp!=null ? fmtPct(gIsp) : 's/d')+'</strong><span>ISP Global del barrio</span></div>'+
-    '</div>'+
-    '<div style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:var(--bg-alt);border:1px solid var(--line);font-size:11.5px">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
-        '<strong>Semáforo de Gestión:</strong>'+
-        '<span class="isp-badge '+semGlobal.badgeClass+'"><span class="material-symbols-outlined" style="font-size:13px">'+semGlobal.icon+'</span> '+semGlobal.chip+'</span>'+
-      '</div>'+
-      '<div style="color:var(--ink-soft)"><strong>Estrategia:</strong> '+semGlobal.strategy+'</div>'+
-    '</div>'+
-    '<div class="cat-chip tint-amarillo"><span class="material-symbols-outlined">construction</span>Servicios urbanos · ISP Top-2 Box</div>'+
-    '<div style="display:flex;flex-direction:column;gap:10px">'+servCards+'</div>';
-}
+    function getSemaforo(pct) {
+      if (pct >= 75) return { chip: 'Óptimo', badgeClass: 'isp-optimo' };
+      if (pct >= 50) return { chip: 'Intermedio', badgeClass: 'isp-intermedio' };
+      return { chip: 'Crítico', badgeClass: 'isp-critico' };
+    }
 
-function renderPanel(feature){
-  const panel = document.getElementById('panel');
-  const props = feature.properties;
-  if(!props.stats){
-    panel.innerHTML =
-      '<h2>'+props.barrio+'</h2>'+
-      '<div class="panel-sub">Sector vectorizado sin datos de relevamiento</div>'+
-      '<div class="no-data-note">Este sector no tiene datos de Consulta Vecinal asociados.</div>';
-    return;
-  }
-  panel.innerHTML =
-    '<h2>'+props.barrio+'</h2>'+
-    '<div class="panel-sub">'+props.meta+'</div>'+
-    statBlocksHTML(props);
-}
+    function renderMapLayer() {
+      if (!sectoresData) return;
+      const metric = document.getElementById('metricSelect').value;
+      if (geoLayer) map.removeLayer(geoLayer);
 
-function redraw(){
-  computeMinMax(currentMetric);
-  if(geoLayer) geoLayer.remove();
-  geoLayer = L.geoJSON(SECTORES, {
-    style: styleFor,
-    onEachFeature: (feature, layer) => {
-      const stats = feature.properties.stats;
-      const label = feature.properties.barrio || feature.properties.name;
-      let valStr = ' (sin datos)';
-      if(stats){
-        const val = currentMetric.get(stats);
-        if(currentMetric.isIsp && val != null){
-          const sem = getIspSemaforo(val);
-          valStr = ' — ' + fmtPct(val) + ' ISP (' + sem.chip + ')';
-        } else if(currentMetric.isPct){
-          valStr = ' — ' + fmtPct(val);
-        } else {
-          valStr = ' — ' + fmtN(val) + ' muestras';
+      geoLayer = L.geoJSON(sectoresData, {
+        style: function(feat) {
+          const s = feat.properties.stats && feat.properties.stats.servicios && feat.properties.stats.servicios[metric];
+          const pct = s ? s.pct : null;
+          return {
+            fillColor: getColor(pct),
+            weight: 2,
+            opacity: 1,
+            color: 'var(--texto)',
+            fillOpacity: 0.65
+          };
+        },
+        onEachFeature: function(feat, layer) {
+          const p = feat.properties || {};
+          const barrio = p.barrio || 'Sector barrial';
+          const s = p.stats && p.stats.servicios && p.stats.servicios[metric];
+          const pct = s ? s.pct : null;
+          const sem = pct != null ? getSemaforo(pct) : null;
+
+          layer.bindTooltip('<strong>' + barrio + '</strong><br>' +
+            (pct != null ? 'ISP: ' + pct.toFixed(1) + '% (' + sem.chip + ')' : 'Sin datos'), { sticky: true });
+
+          layer.on('click', function() {
+            mostrarPanel(feat);
+          });
         }
-      }
-      layer.bindTooltip(label + valStr, { sticky: true });
-      layer.on('click', () => renderPanel(feature));
-      layer.on('mouseover', () => layer.setStyle({ weight: 3 }));
-      layer.on('mouseout', () => layer.setStyle({ weight: 1.4 }));
+      }).addTo(map);
+
+      try {
+        map.fitBounds(geoLayer.getBounds(), { padding: [20, 20] });
+      } catch (e) {}
     }
-  }).addTo(map);
-  renderLegend(currentMetric._min, currentMetric._max);
-}
 
-function fitToZonas(){
-  const bounds = geoLayer.getBounds();
-  if(bounds.isValid()) map.fitBounds(bounds, { padding: [24,24] });
-}
+    function mostrarPanel(feat) {
+      const p = feat.properties || {};
+      const barrio = p.barrio || 'Sector';
+      const meta = p.meta || '';
+      const stats = p.stats || {};
+      const servicios = stats.servicios || {};
 
-sel.addEventListener('change', () => {
-  currentMetric = METRICS.find(m => m.key === sel.value);
-  redraw();
-});
+      document.getElementById('panelTitulo').textContent = barrio;
+      document.getElementById('panelSub').textContent = meta || (stats.muestras ? stats.muestras + ' muestras recolectadas' : '');
 
-redraw();
-fitToZonas();
-</script>
+      let html = '<div class="stack-rows" style="margin-top:14px">';
+      ['alumbrado', 'residuos', 'yuyos', 'calle', 'riego'].forEach(key => {
+        const s = servicios[key];
+        if (s) {
+          const sem = getSemaforo(s.pct);
+          html += '<div style="margin-bottom:12px">' +
+            '<div style="display:flex;justify-content:space-between;font-size:0.85rem;font-weight:600;margin-bottom:2px">' +
+              '<span>' + METRIC_LABELS[key] + '</span>' +
+              '<span class="isp-badge ' + sem.badgeClass + '" style="font-size:10px">' + s.pct.toFixed(1) + '%</span>' +
+            '</div>' +
+            '<div class="bar-track"><div class="bar-fill" style="width:' + s.pct + '%;background:' + (s.pct >= 75 ? 'var(--ok)' : (s.pct >= 50 ? 'var(--alerta)' : 'var(--grave)')) + '"></div></div>' +
+            (s.rawNote ? '<div class="texto-suave" style="font-size:11px;margin-top:2px">' + s.rawNote + '</div>' : '') +
+          '</div>';
+        }
+      });
+      html += '</div>';
+      document.getElementById('panelDetalle').innerHTML = html;
+    }
+
+    fetch('datos/sectores-14-zonas.geojson')
+      .then(res => res.json())
+      .then(data => {
+        sectoresData = data;
+        renderMapLayer();
+      })
+      .catch(() => {});
+
+    document.getElementById('metricSelect').addEventListener('change', renderMapLayer);
+  })();
+  </script>
 </body>
 </html>
