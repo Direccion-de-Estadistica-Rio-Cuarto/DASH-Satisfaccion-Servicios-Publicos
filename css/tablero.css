@@ -8,12 +8,15 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 9px;
+  padding: 4px 10px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  line-height: 1;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .isp-badge .icono {
   font-size: 14px;
@@ -37,34 +40,49 @@
 }
 .isp-strategy {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--texto-suave);
-  margin-top: 8px;
-  line-height: 1.4;
+  margin: 4px 0 12px;
+  line-height: 1.45;
 }
 .isp-breakdown {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 12px;
-  margin: 12px 0 0;
-  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: auto;
+  padding: 8px 12px;
   background: var(--fondo);
+  border: 1px solid var(--borde);
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
 }
 .isp-breakdown-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--borde);
+}
+.isp-breakdown-item:first-child {
+  padding-top: 2px;
+}
+.isp-breakdown-item:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
 }
 .isp-breakdown-label {
   color: var(--texto-suave);
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .isp-breakdown-val {
   font-weight: 700;
   color: var(--texto);
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 
 /* --- Íconos de servicios ------------------------------------------------- */
@@ -209,6 +227,9 @@ p.raw-note {
   left: auto;
   right: 12px;
 }
+.isp-breakdown .info-tip-content {
+  max-width: 260px;
+}
 
 @media (max-width: 640px) {
   .info-tip-content {
@@ -220,48 +241,78 @@ p.raw-note {
 /* --- Grillas y Tarjetas de Servicios ------------------------------------- */
 .tile-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+#serviciosGrid.tile-grid {
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
 }
 .tile {
   position: relative;
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--borde);
   border-radius: var(--radio);
-  padding: 18px 20px;
+  padding: 20px;
   background: var(--superficie);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
-.tile:hover {
+.tile:hover,
+.tile:focus-within {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+}
+.tile-top,
+.tile > div:first-child[style*="justify-content:space-between"] {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 10px;
+  padding-right: 68px;
+  margin-bottom: 6px !important;
+  flex-wrap: wrap;
 }
 .tile-num {
   font-size: 2rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   margin-bottom: 2px;
+  padding-right: 68px;
+}
+.tile-top .tile-num,
+.tile > div:first-child[style*="justify-content:space-between"] .tile-num {
+  margin-bottom: 0;
+  padding-right: 0;
 }
 .tile-count {
   font-size: 0.8rem;
   color: var(--texto-suave);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .tile-label {
   font-size: 0.95rem;
   color: var(--texto);
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 6px;
+  line-height: 1.35;
+}
+.tile-label > .icono {
+  font-size: 20px;
+  flex-shrink: 0;
 }
 .tile-charts {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 16px;
+  right: 16px;
   display: flex;
   gap: 4px;
+  z-index: 2;
 }
 .tile-chart-btn {
   display: inline-flex;
@@ -269,34 +320,43 @@ p.raw-note {
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: none;
+  border: 1px solid var(--borde);
   border-radius: 6px;
-  background: transparent;
+  background: var(--fondo);
   color: var(--texto-suave);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 .tile-chart-btn:hover {
-  background: var(--fondo);
-  color: var(--marca);
+  background: color-mix(in srgb, var(--marca) 12%, var(--fondo));
+  border-color: var(--marca);
+  color: var(--marca-enlace);
 }
 .tile-chart-btn .icono {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .bar-track {
-  height: 6px;
-  border-radius: 4px;
+  height: 7px;
+  border-radius: 999px;
   background: var(--borde);
   overflow: hidden;
-  margin-top: 12px;
+  margin: 12px 0 6px;
 }
 .bar-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 999px;
   width: 0%;
   transition: width 0.6s ease;
   background: var(--marca);
+}
+.cv-area .tile .raw-note {
+  margin: 8px 0 10px !important;
+  line-height: 1.45;
+}
+.cv-area .tile .bar-track {
+  margin-top: auto;
+  margin-bottom: 0;
 }
 
 /* --- Desplegables de Zonas ----------------------------------------------- */

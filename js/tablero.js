@@ -166,14 +166,14 @@
       const div = document.createElement('div');
       div.className = 'tile';
       div.innerHTML =
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
-          '<div class="tile-num" style="padding-right:0">' + fmtPct(isp) + '</div>' +
+        '<div class="tile-top">' +
+          '<div class="tile-num">' + fmtPct(isp) + '</div>' +
           '<span class="isp-badge ' + sem.badgeClass + '"><span class="icono" aria-hidden="true">' + sem.icon + '</span> ' + sem.chip + '</span>' +
         '</div>' +
         '<div class="tile-count">Aprobación ISP en ' + fmtN(tiles.length) + (tiles.length === 1 ? ' zona' : ' zonas') + '</div>' +
         '<div class="tile-label">' +
           '<span class="icono ' + iconCls + '" aria-hidden="true">' + icon + '</span>' + label +
-          '<button type="button" class="info-tip" aria-label="Detalles de ' + escapeHtml(label) + '" style="margin-left:6px">' +
+          '<button type="button" class="info-tip align-right" aria-label="Detalles de ' + escapeHtml(label) + '" style="margin-left:auto">' +
             '<span class="icono" aria-hidden="true">info</span>' +
             '<span class="info-tip-content">' +
               '<strong>' + escapeHtml(label) + '</strong><br>' +
@@ -186,10 +186,10 @@
         '<div class="bar-track"><div class="bar-fill" style="width:' + Math.min(100, isp) + '%;background:' + sem.color + '"></div></div>' +
         '<div class="isp-strategy"><strong>Estrategia:</strong> ' + sem.strategy + '</div>' +
         '<div class="isp-breakdown">' +
-          '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Excelencia (Muy bien):<button type="button" class="info-tip" style="margin-left:3px" aria-label="Info excelencia"><span class="icono" style="font-size:13px" aria-hidden="true">info</span><span class="info-tip-content"><strong>Excelencia:</strong> Calificación máxima Muy bien.</span></button></span><span class="isp-breakdown-val">' + fmtPct(muyBien) + '</span></div>' +
-          '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Aprobación (Bien):<button type="button" class="info-tip" style="margin-left:3px" aria-label="Info aprobación"><span class="icono" style="font-size:13px" aria-hidden="true">info</span><span class="info-tip-content"><strong>Aprobación estándar:</strong> Calificación favorable Bien.</span></button></span><span class="isp-breakdown-val">' + fmtPct(bien) + '</span></div>' +
-          '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Oportunidad (Regular):<button type="button" class="info-tip" style="margin-left:3px" aria-label="Info oportunidad"><span class="icono" style="font-size:13px" aria-hidden="true">info</span><span class="info-tip-content"><strong>Zona de oportunidad:</strong> Opinión neutra Regular; margen de mejora.</span></button></span><span class="isp-breakdown-val">' + fmtPct(regular) + '</span></div>' +
-          '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Disconformidad:<button type="button" class="info-tip" style="margin-left:3px" aria-label="Info disconformidad"><span class="icono" style="font-size:13px" aria-hidden="true">info</span><span class="info-tip-content"><strong>Disconformidad:</strong> Respuestas Mal y Muy mal.</span></button></span><span class="isp-breakdown-val" style="color:var(--grave)">' + fmtPct(disconformidad) + '</span></div>' +
+          '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Excelencia (Muy bien):<button type="button" class="info-tip" aria-label="Info excelencia"><span class="icono" style="font-size:14px" aria-hidden="true">info</span><span class="info-tip-content"><strong>Excelencia:</strong> Calificación máxima Muy bien.</span></button></span><span class="isp-breakdown-val">' + fmtPct(muyBien) + '</span></div>' +
+          '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Aprobación (Bien):<button type="button" class="info-tip" aria-label="Info aprobación"><span class="icono" style="font-size:14px" aria-hidden="true">info</span><span class="info-tip-content"><strong>Aprobación estándar:</strong> Calificación favorable Bien.</span></button></span><span class="isp-breakdown-val">' + fmtPct(bien) + '</span></div>' +
+          '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Oportunidad (Regular):<button type="button" class="info-tip" aria-label="Info oportunidad"><span class="icono" style="font-size:14px" aria-hidden="true">info</span><span class="info-tip-content"><strong>Zona de oportunidad:</strong> Opinión neutra Regular; margen de mejora.</span></button></span><span class="isp-breakdown-val">' + fmtPct(regular) + '</span></div>' +
+          '<div class="isp-breakdown-item"><span class="isp-breakdown-label">Disconformidad:<button type="button" class="info-tip" aria-label="Info disconformidad"><span class="icono" style="font-size:14px" aria-hidden="true">info</span><span class="info-tip-content"><strong>Disconformidad:</strong> Respuestas Mal y Muy mal.</span></button></span><span class="isp-breakdown-val" style="color:var(--grave)">' + fmtPct(disconformidad) + '</span></div>' +
         '</div>' +
         (rawNote ? '<div class="raw-note" style="margin:8px 0 0;font-size:11px;display:none">' + rawNote + '</div>' : '');
 
