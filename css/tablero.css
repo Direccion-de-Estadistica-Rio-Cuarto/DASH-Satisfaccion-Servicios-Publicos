@@ -534,6 +534,9 @@ p.raw-note {
   min-height: 520px;
   background: var(--fondo);
 }
+.leaflet-tile-pane {
+  filter: var(--filtro-mapa);
+}
 .mapa-panel {
   border: 1px solid var(--borde);
   border-radius: var(--radio);

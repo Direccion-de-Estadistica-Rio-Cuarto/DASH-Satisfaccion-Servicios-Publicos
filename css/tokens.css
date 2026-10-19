@@ -64,8 +64,8 @@
   /* Los escudos del footer son gris oscuro sobre transparente: en modo oscuro
     se aclaran con este filtro para que no desaparezcan sobre el fondo. */
   --filtro-escudo: none;
-  /* El mapa base (Argenmap) es claro: en modo oscuro se atenúa con este filtro. */
-  --filtro-mapa: none;
+  /* El mapa base (Argenmap) se muestra en versión gris (escala de grises); en modo oscuro además se atenúa. */
+  --filtro-mapa: grayscale(1) contrast(0.96) brightness(1.03);
 
   /* Color de acento para acciones que se destacan del resto (hoy: el botón
     .boton--mapa). Es un magenta saturado, del mismo matiz que el rosa de
@@ -122,7 +122,7 @@
     --serie-8: #ef6a6a;
 
     --filtro-escudo: brightness(0) invert(0.78);
-    --filtro-mapa: brightness(0.62) contrast(1.1) saturate(0.8);
+    --filtro-mapa: grayscale(1) brightness(0.62) contrast(1.1);
     --flecha-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f6f6f2' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
     /* --ok / --alerta / --grave: mismo valor que en modo claro. El tinte
@@ -153,7 +153,7 @@
   --serie-8: #ef6a6a;
 
   --filtro-escudo: brightness(0) invert(0.78);
-  --filtro-mapa: brightness(0.62) contrast(1.1) saturate(0.8);
+  --filtro-mapa: grayscale(1) brightness(0.62) contrast(1.1);
   --flecha-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f6f6f2' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
   /* --ok / --alerta / --grave: mismo valor que en modo claro. El tinte del
