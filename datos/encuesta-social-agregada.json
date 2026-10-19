@@ -1,0 +1,499 @@
+{
+  "actualizado": "2026-10-19T13:40:44.414Z",
+  "fuente": "Encuesta Social (Hoja 1, columnas AV-AZ) — Dirección de Estadística, Control de Calidad y Procesos",
+  "totalAreasConSatisfaccion": 12,
+  "areas": [
+    {
+      "zonaId": "5",
+      "barrioSheet": "San Martín",
+      "area": "Área 5 — Bo. San Martín — Sector 3",
+      "month": 2,
+      "year": 2026,
+      "muestras": 46,
+      "meta": "Febrero 2026 · 46 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 64.4,
+          "validas": 45,
+          "muestras": 46,
+          "rawNote": "Muy bien 10 · Bien 19 · Regular 11 · Mal 5 · Ns/Nc 1"
+        },
+        "residuos": {
+          "pct": 51.1,
+          "validas": 45,
+          "muestras": 46,
+          "rawNote": "Muy bien 12 · Bien 11 · Regular 17 · Mal 5 · Ns/Nc 1"
+        },
+        "yuyos": {
+          "pct": 31.1,
+          "validas": 45,
+          "muestras": 46,
+          "rawNote": "Muy bien 3 · Bien 11 · Regular 24 · Mal 7 · Ns/Nc 1"
+        },
+        "calle": {
+          "pct": 26.1,
+          "validas": 46,
+          "muestras": 46,
+          "rawNote": "Muy bien 3 · Bien 9 · Regular 22 · Mal 12"
+        },
+        "riego": {
+          "pct": 24.4,
+          "validas": 45,
+          "muestras": 46,
+          "rawNote": "Muy bien 5 · Bien 6 · Regular 24 · Mal 10 · Ns/Nc 1"
+        }
+      }
+    },
+    {
+      "zonaId": "bimaco",
+      "barrioSheet": "Bimaco",
+      "area": "Bimaco",
+      "month": 3,
+      "year": 2026,
+      "muestras": 37,
+      "meta": "Marzo 2026 · 37 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 91.9,
+          "validas": 37,
+          "muestras": 37,
+          "rawNote": "Muy bien 16 · Bien 18 · Mal 3"
+        },
+        "residuos": {
+          "pct": 86.5,
+          "validas": 37,
+          "muestras": 37,
+          "rawNote": "Muy bien 18 · Bien 14 · Mal 4 · Muy mal 1"
+        },
+        "yuyos": {
+          "pct": 69.4,
+          "validas": 36,
+          "muestras": 37,
+          "rawNote": "Muy bien 14 · Bien 11 · Mal 8 · Muy mal 3 · Ns/Nc 1"
+        },
+        "calle": {
+          "pct": 64.9,
+          "validas": 37,
+          "muestras": 37,
+          "rawNote": "Muy bien 14 · Bien 10 · Mal 9 · Muy mal 4"
+        },
+        "riego": {
+          "pct": 80,
+          "validas": 25,
+          "muestras": 37,
+          "rawNote": "Muy bien 11 · Bien 9 · Mal 3 · Muy mal 2 · Ns/Nc 12"
+        }
+      }
+    },
+    {
+      "zonaId": "6",
+      "barrioSheet": "Nueva Argentina",
+      "area": "Área 6 — Nueva Argentina",
+      "month": 4,
+      "year": 2026,
+      "muestras": 114,
+      "meta": "Abril 2026 · 114 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 71.1,
+          "validas": 114,
+          "muestras": 114,
+          "rawNote": "Muy bien 29 · Bien 52 · Mal 21 · Muy mal 12"
+        },
+        "residuos": {
+          "pct": 70.2,
+          "validas": 114,
+          "muestras": 114,
+          "rawNote": "Muy bien 17 · Bien 63 · Mal 20 · Muy mal 14"
+        },
+        "yuyos": {
+          "pct": 29.2,
+          "validas": 106,
+          "muestras": 114,
+          "rawNote": "Muy bien 4 · Bien 27 · Mal 36 · Muy mal 39 · Ns/Nc 8"
+        },
+        "calle": {
+          "pct": 27.9,
+          "validas": 111,
+          "muestras": 114,
+          "rawNote": "Muy bien 5 · Bien 26 · Mal 33 · Muy mal 47 · Ns/Nc 3"
+        },
+        "riego": {
+          "pct": 35.8,
+          "validas": 106,
+          "muestras": 114,
+          "rawNote": "Muy bien 6 · Bien 32 · Mal 26 · Muy mal 42 · Ns/Nc 8"
+        }
+      }
+    },
+    {
+      "zonaId": "7",
+      "barrioSheet": "Jardín (Oeste)",
+      "area": "Área 7 — Jardín (Oeste)",
+      "month": 5,
+      "year": 2026,
+      "muestras": 41,
+      "meta": "Mayo 2026 · 41 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 87.8,
+          "validas": 41,
+          "muestras": 41,
+          "rawNote": "Muy bien 10 · Bien 26 · Mal 3 · Muy mal 2"
+        },
+        "residuos": {
+          "pct": 87.8,
+          "validas": 41,
+          "muestras": 41,
+          "rawNote": "Muy bien 13 · Bien 23 · Mal 5"
+        },
+        "yuyos": {
+          "pct": 70,
+          "validas": 40,
+          "muestras": 41,
+          "rawNote": "Muy bien 6 · Bien 22 · Mal 11 · Muy mal 1 · Ns/Nc 1"
+        },
+        "calle": {
+          "pct": 42.5,
+          "validas": 40,
+          "muestras": 41,
+          "rawNote": "Muy bien 4 · Bien 13 · Mal 18 · Muy mal 5 · Ns/Nc 1"
+        },
+        "riego": {
+          "pct": 57.5,
+          "validas": 40,
+          "muestras": 41,
+          "rawNote": "Muy bien 4 · Bien 19 · Mal 10 · Muy mal 7 · Ns/Nc 1"
+        }
+      }
+    },
+    {
+      "zonaId": "8",
+      "barrioSheet": "Pueblo Alberdi (Mi Lugar, Mi Sueño 2 y 3)",
+      "area": "Área 8 — Pueblo Alberdi (Mi Lugar, Mi Sueño 2 y 3)",
+      "month": 6,
+      "year": 2026,
+      "muestras": 122,
+      "meta": "Junio 2026 · 122 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 86.1,
+          "validas": 122,
+          "muestras": 122,
+          "rawNote": "Muy bien 39 · Bien 66 · Mal 13 · Muy mal 4"
+        },
+        "residuos": {
+          "pct": 84.3,
+          "validas": 121,
+          "muestras": 122,
+          "rawNote": "Muy bien 25 · Bien 77 · Mal 15 · Muy mal 4 · Ns/Nc 1"
+        },
+        "yuyos": {
+          "pct": 57.8,
+          "validas": 116,
+          "muestras": 122,
+          "rawNote": "Muy bien 7 · Bien 60 · Mal 36 · Muy mal 13 · Ns/Nc 6"
+        },
+        "calle": {
+          "pct": 47.1,
+          "validas": 119,
+          "muestras": 122,
+          "rawNote": "Muy bien 13 · Bien 43 · Mal 37 · Muy mal 26 · Ns/Nc 3"
+        },
+        "riego": {
+          "pct": 36,
+          "validas": 89,
+          "muestras": 122,
+          "rawNote": "Muy bien 5 · Bien 27 · Mal 25 · Muy mal 32 · Ns/Nc 33"
+        }
+      }
+    },
+    {
+      "zonaId": "9",
+      "barrioSheet": "Goretti",
+      "area": "Área 9 — Goretti",
+      "month": 6,
+      "year": 2026,
+      "muestras": 55,
+      "meta": "Junio 2026 · 55 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 92.7,
+          "validas": 55,
+          "muestras": 55,
+          "rawNote": "Muy bien 19 · Bien 32 · Mal 4"
+        },
+        "residuos": {
+          "pct": 83.6,
+          "validas": 55,
+          "muestras": 55,
+          "rawNote": "Muy bien 15 · Bien 31 · Mal 8 · Muy mal 1"
+        },
+        "yuyos": {
+          "pct": 47.2,
+          "validas": 53,
+          "muestras": 55,
+          "rawNote": "Muy bien 6 · Bien 19 · Mal 21 · Muy mal 7 · Ns/Nc 2"
+        },
+        "calle": {
+          "pct": 56.4,
+          "validas": 55,
+          "muestras": 55,
+          "rawNote": "Muy bien 5 · Bien 26 · Mal 22 · Muy mal 2"
+        },
+        "riego": {
+          "pct": 38.9,
+          "validas": 54,
+          "muestras": 55,
+          "rawNote": "Muy bien 7 · Bien 14 · Mal 21 · Muy mal 12 · Ns/Nc 1"
+        }
+      }
+    },
+    {
+      "zonaId": "10",
+      "barrioSheet": "San Pantaleón",
+      "area": "Área 10 — San Pantaleón",
+      "month": 7,
+      "year": 2026,
+      "muestras": 63,
+      "meta": "Julio 2026 · 63 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 79.4,
+          "validas": 63,
+          "muestras": 63,
+          "rawNote": "Muy bien 14 · Bien 36 · Mal 6 · Muy mal 7"
+        },
+        "residuos": {
+          "pct": 100,
+          "validas": 63,
+          "muestras": 63,
+          "rawNote": "Muy bien 31 · Bien 32"
+        },
+        "yuyos": {
+          "pct": 61,
+          "validas": 59,
+          "muestras": 63,
+          "rawNote": "Muy bien 7 · Bien 29 · Mal 14 · Muy mal 9 · Ns/Nc 4"
+        },
+        "calle": {
+          "pct": 38.1,
+          "validas": 63,
+          "muestras": 63,
+          "rawNote": "Muy bien 9 · Bien 15 · Mal 24 · Muy mal 15"
+        },
+        "riego": {
+          "pct": 30.4,
+          "validas": 46,
+          "muestras": 63,
+          "rawNote": "Muy bien 3 · Bien 11 · Mal 17 · Muy mal 15 · Ns/Nc 17"
+        }
+      }
+    },
+    {
+      "zonaId": "11",
+      "barrioSheet": "Quintitas Golf",
+      "area": "Área 11 — Quintitas Golf",
+      "month": 7,
+      "year": 2026,
+      "muestras": 41,
+      "meta": "Julio 2026 · 41 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 87.8,
+          "validas": 41,
+          "muestras": 41,
+          "rawNote": "Muy bien 19 · Bien 17 · Mal 5"
+        },
+        "residuos": {
+          "pct": 87.8,
+          "validas": 41,
+          "muestras": 41,
+          "rawNote": "Muy bien 19 · Bien 17 · Mal 3 · Muy mal 2"
+        },
+        "yuyos": {
+          "pct": 65,
+          "validas": 40,
+          "muestras": 41,
+          "rawNote": "Muy bien 7 · Bien 19 · Mal 13 · Muy mal 1 · Ns/Nc 1"
+        },
+        "calle": {
+          "pct": 73.2,
+          "validas": 41,
+          "muestras": 41,
+          "rawNote": "Muy bien 9 · Bien 21 · Mal 9 · Muy mal 2"
+        },
+        "riego": {
+          "pct": 50,
+          "validas": 40,
+          "muestras": 41,
+          "rawNote": "Muy bien 6 · Bien 14 · Mal 10 · Muy mal 10 · Ns/Nc 1"
+        }
+      }
+    },
+    {
+      "zonaId": "12",
+      "barrioSheet": "Alem",
+      "area": "Área 12 — Bo. Alem",
+      "month": 8,
+      "year": 2026,
+      "muestras": 78,
+      "meta": "Agosto 2026 · 78 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 100,
+          "validas": 78,
+          "muestras": 78,
+          "rawNote": "Muy bien 31 · Bien 47"
+        },
+        "residuos": {
+          "pct": 91,
+          "validas": 78,
+          "muestras": 78,
+          "rawNote": "Muy bien 21 · Bien 50 · Mal 5 · Muy mal 2"
+        },
+        "yuyos": {
+          "pct": 74.4,
+          "validas": 78,
+          "muestras": 78,
+          "rawNote": "Muy bien 7 · Bien 51 · Mal 15 · Muy mal 5"
+        },
+        "calle": {
+          "pct": 59,
+          "validas": 78,
+          "muestras": 78,
+          "rawNote": "Muy bien 6 · Bien 40 · Mal 19 · Muy mal 13"
+        },
+        "riego": {
+          "pct": 60.6,
+          "validas": 71,
+          "muestras": 78,
+          "rawNote": "Muy bien 4 · Bien 39 · Mal 21 · Muy mal 7 · Ns/Nc 7"
+        }
+      }
+    },
+    {
+      "zonaId": "13",
+      "barrioSheet": "Jardín Norte",
+      "area": "Área 13 — Bo. Jardín Norte",
+      "month": 9,
+      "year": 2026,
+      "muestras": 95,
+      "meta": "Septiembre 2026 · 95 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 75.8,
+          "validas": 95,
+          "muestras": 95,
+          "rawNote": "Muy bien 20 · Bien 52 · Mal 10 · Muy mal 13"
+        },
+        "residuos": {
+          "pct": 81.1,
+          "validas": 95,
+          "muestras": 95,
+          "rawNote": "Muy bien 21 · Bien 56 · Mal 14 · Muy mal 4"
+        },
+        "yuyos": {
+          "pct": 58.1,
+          "validas": 93,
+          "muestras": 95,
+          "rawNote": "Muy bien 13 · Bien 41 · Mal 28 · Muy mal 11 · Ns/Nc 2"
+        },
+        "calle": {
+          "pct": 55.3,
+          "validas": 94,
+          "muestras": 95,
+          "rawNote": "Muy bien 8 · Bien 44 · Mal 32 · Muy mal 10 · Ns/Nc 1"
+        },
+        "riego": {
+          "pct": 51.6,
+          "validas": 93,
+          "muestras": 95,
+          "rawNote": "Muy bien 9 · Bien 39 · Mal 25 · Muy mal 20 · Ns/Nc 2"
+        }
+      }
+    },
+    {
+      "zonaId": "14",
+      "barrioSheet": "Industrial",
+      "area": "Área 14 — Bo. Industrial",
+      "month": 10,
+      "year": 2026,
+      "muestras": 32,
+      "meta": "Octubre 2026 · 32 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 100,
+          "validas": 32,
+          "muestras": 32,
+          "rawNote": "Muy bien 17 · Bien 15"
+        },
+        "residuos": {
+          "pct": 96.9,
+          "validas": 32,
+          "muestras": 32,
+          "rawNote": "Muy bien 19 · Bien 12 · Mal 1"
+        },
+        "yuyos": {
+          "pct": 80,
+          "validas": 30,
+          "muestras": 32,
+          "rawNote": "Muy bien 14 · Bien 10 · Mal 4 · Muy mal 2 · Ns/Nc 2"
+        },
+        "calle": {
+          "pct": 71.9,
+          "validas": 32,
+          "muestras": 32,
+          "rawNote": "Muy bien 9 · Bien 14 · Mal 3 · Muy mal 6"
+        },
+        "riego": {
+          "pct": 66.7,
+          "validas": 6,
+          "muestras": 32,
+          "rawNote": "Muy bien 1 · Bien 3 · Muy mal 2 · Ns/Nc 26"
+        }
+      }
+    },
+    {
+      "zonaId": "15",
+      "barrioSheet": "Lomitas de Oro",
+      "area": "Área 15 — Lomitas de Oro",
+      "month": 10,
+      "year": 2026,
+      "muestras": 90,
+      "meta": "Octubre 2026 · 90 muestras recolectadas",
+      "servicios": {
+        "alumbrado": {
+          "pct": 78.7,
+          "validas": 89,
+          "muestras": 90,
+          "rawNote": "Muy bien 25 · Bien 45 · Mal 11 · Muy mal 8 · Ns/Nc 1"
+        },
+        "residuos": {
+          "pct": 94.4,
+          "validas": 90,
+          "muestras": 90,
+          "rawNote": "Muy bien 29 · Bien 56 · Mal 4 · Muy mal 1"
+        },
+        "yuyos": {
+          "pct": 76.3,
+          "validas": 76,
+          "muestras": 90,
+          "rawNote": "Muy bien 14 · Bien 44 · Mal 14 · Muy mal 4 · Ns/Nc 14"
+        },
+        "calle": {
+          "pct": 64.4,
+          "validas": 90,
+          "muestras": 90,
+          "rawNote": "Muy bien 18 · Bien 40 · Mal 19 · Muy mal 13"
+        },
+        "riego": {
+          "pct": 59,
+          "validas": 39,
+          "muestras": 90,
+          "rawNote": "Muy bien 5 · Bien 18 · Mal 12 · Muy mal 4 · Ns/Nc 51"
+        }
+      }
+    }
+  ]
+}

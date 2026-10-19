@@ -556,3 +556,8 @@ p.raw-note {
     min-height: 380px;
   }
 }
+
+.aviso[hidden] {
+  display: none;
+}
+

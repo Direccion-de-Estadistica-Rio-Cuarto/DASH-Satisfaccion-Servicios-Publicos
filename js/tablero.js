@@ -212,12 +212,19 @@
   function buildZonaOptions() {
     const sel = document.getElementById('zonaFilter');
     if (!sel) return;
+    const prev = sel.value;
+    while (sel.options.length > 1) {
+      sel.remove(1);
+    }
     ZONAS.forEach(z => {
       const opt = document.createElement('option');
       opt.value = z.id;
       opt.textContent = z.area;
       sel.appendChild(opt);
     });
+    if (prev && ZONAS.some(z => z.id === prev)) {
+      sel.value = prev;
+    }
   }
 
   function buildZonaMonthOptions(zonaId) {
@@ -448,41 +455,359 @@
     });
   }
 
-  // --- Mapa Interactivo Integrado ------------------------------------------
+  // --- Mapa Interactivo Integrado y Sincronización -------------------------
   let geojsonData = null;
+  let agregadaData = null;
   let leafletGeoLayer = null;
+  let ultimaHoraBuena = null;
+
+  function normalizarNombre(str) {
+    return (str || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  function tienePoligonoValido(feat) {
+    if (!feat || !feat.geometry) return false;
+    const g = feat.geometry;
+    if (g.type !== 'Polygon' && g.type !== 'MultiPolygon') return false;
+    return Array.isArray(g.coordinates) && g.coordinates.length > 0;
+  }
+
+  function areaTienePoligonoEnMapa(zonaId, nombreArea) {
+    if (!geojsonData || !Array.isArray(geojsonData.features)) return true;
+    const normArea = normalizarNombre(nombreArea);
+    return geojsonData.features.some(feat => {
+      if (!tienePoligonoValido(feat)) return false;
+      const p = feat.properties || {};
+      if (String(p.id) === String(zonaId)) return true;
+      const normBarrio = normalizarNombre(p.barrio);
+      if (normArea && normBarrio && (normBarrio === normArea || normBarrio.includes(normArea) || normArea.includes(normBarrio))) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  function construirTarjetaServicioDom(svcMeta, svcStat) {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+
+    const topRow = document.createElement('div');
+    topRow.style.display = 'flex';
+    topRow.style.justifyContent = 'space-between';
+    topRow.style.alignItems = 'flex-start';
+    topRow.style.marginBottom = '2px';
+
+    const numEl = document.createElement('div');
+    numEl.className = 'tile-num';
+    numEl.style.paddingRight = '0';
+    numEl.textContent = fmtPct(svcStat.pct);
+
+    const sem = getIspSemaforo(svcStat.pct);
+    const badgeEl = document.createElement('span');
+    badgeEl.className = 'isp-badge ' + sem.badgeClass;
+    const badgeIcon = document.createElement('span');
+    badgeIcon.className = 'icono';
+    badgeIcon.setAttribute('aria-hidden', 'true');
+    badgeIcon.style.fontSize = '13px';
+    badgeIcon.textContent = sem.icon;
+    badgeEl.appendChild(badgeIcon);
+    badgeEl.appendChild(document.createTextNode(' ' + sem.chip));
+
+    topRow.appendChild(numEl);
+    topRow.appendChild(badgeEl);
+
+    const countEl = document.createElement('div');
+    countEl.className = 'tile-count';
+    countEl.textContent = 'Aprobación ISP · ' + fmtN(svcStat.muestras || svcStat.validas || 0) + ' respuestas';
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'tile-label';
+    const iconEl = document.createElement('span');
+    iconEl.className = 'icono ' + svcMeta.iconCls;
+    iconEl.setAttribute('aria-hidden', 'true');
+    iconEl.textContent = svcMeta.icon;
+    labelEl.appendChild(iconEl);
+    labelEl.appendChild(document.createTextNode(svcMeta.tileTitle));
+
+    const noteEl = document.createElement('div');
+    noteEl.className = 'raw-note';
+    noteEl.style.margin = '8px 0 0';
+    noteEl.style.fontSize = '11.5px';
+    noteEl.textContent = svcStat.rawNote || '';
+
+    const trackEl = document.createElement('div');
+    trackEl.className = 'bar-track';
+    const fillEl = document.createElement('div');
+    fillEl.className = 'bar-fill';
+    fillEl.style.width = Math.min(100, Math.max(0, Number(svcStat.pct) || 0)) + '%';
+    fillEl.style.background = sem.color;
+    trackEl.appendChild(fillEl);
+
+    tile.appendChild(topRow);
+    tile.appendChild(countEl);
+    tile.appendChild(labelEl);
+    tile.appendChild(noteEl);
+    tile.appendChild(trackEl);
+
+    return tile;
+  }
+
+  function integrarAreasAgregadas(data) {
+    if (!data || !Array.isArray(data.areas)) return;
+    const contenedor = document.getElementById('consulta-vecinal');
+    const SERV_MAP = [
+      { key: 'alumbrado', tileTitle: 'Alumbrado público (ISP)', icon: 'table_lamp', iconCls: 'icon-alumbrado' },
+      { key: 'residuos', tileTitle: 'Recolección de residuos (ISP)', icon: 'delete_sweep', iconCls: 'icon-residuos' },
+      { key: 'yuyos', tileTitle: 'Limpieza de baldíos / yuyos (ISP)', icon: 'grass', iconCls: 'icon-yuyos' },
+      { key: 'calle', tileTitle: 'Estado de calles (ISP)', icon: 'unpaved_road', iconCls: 'icon-calles' },
+      { key: 'riego', tileTitle: 'Riego y desagües (ISP)', icon: 'water', iconCls: 'icon-riego' }
+    ];
+
+    let huboCambios = false;
+
+    data.areas.forEach(areaObj => {
+      const zId = String(areaObj.zonaId);
+      const areaNombre = areaObj.area || areaObj.barrioSheet || ('Área ' + zId);
+      const month = Number(areaObj.month) || 10;
+      const year = Number(areaObj.year) || 2026;
+
+      if (!ZONAS.some(z => String(z.id) === zId)) {
+        ZONAS.push({ id: zId, area: areaNombre, month: month });
+        huboCambios = true;
+      }
+
+      if (!contenedor) return;
+
+      let detailsEl = contenedor.querySelector('.cv-area[data-zona="' + CSS.escape(zId) + '"]');
+      if (!detailsEl) {
+        const spacer = document.createElement('div');
+        spacer.style.height = '8px';
+        contenedor.appendChild(spacer);
+
+        detailsEl = document.createElement('details');
+        detailsEl.className = 'cv-area';
+        detailsEl.dataset.zona = zId;
+        detailsEl.dataset.month = String(month);
+        detailsEl.dataset.year = String(year);
+
+        const summary = document.createElement('summary');
+        summary.className = 'cv-area-head';
+
+        const h3 = document.createElement('h3');
+        h3.textContent = areaNombre;
+
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'cv-area-meta';
+        metaDiv.textContent = areaObj.meta || (MESES[month - 1] + ' ' + year + ' · ' + (areaObj.muestras || 0) + ' muestras recolectadas');
+
+        summary.appendChild(h3);
+        summary.appendChild(metaDiv);
+        detailsEl.appendChild(summary);
+
+        const grid = document.createElement('div');
+        grid.className = 'tile-grid';
+
+        const servicios = areaObj.servicios || {};
+        SERV_MAP.forEach(sm => {
+          const st = servicios[sm.key];
+          if (st && st.validas > 0) {
+            const tile = construirTarjetaServicioDom(sm, st);
+            grid.appendChild(tile);
+            addTileCharts(tile);
+          }
+        });
+
+        detailsEl.appendChild(grid);
+        contenedor.appendChild(detailsEl);
+        huboCambios = true;
+      }
+    });
+
+    if (huboCambios && contenedor) {
+      buildZonaOptions();
+      const zFilter = document.getElementById('zonaFilter');
+      buildZonaMonthOptions(zFilter ? zFilter.value : '');
+      renderVecinal();
+      renderServicios();
+
+      const totalMuestras = [...document.querySelectorAll('.cv-area-meta')].reduce((acc, el) => {
+        const m = el.textContent.match(/(\d+)\s+muestras/);
+        return acc + (m ? parseInt(m[1], 10) : 0);
+      }, 46);
+      animateCountText(document.getElementById('statEncuestas'), totalMuestras);
+
+      const statZonasEl = document.getElementById('statZonas');
+      if (statZonasEl) animateCountText(statZonasEl, ZONAS.length);
+
+      const tabZonasTexto = document.getElementById('tabZonasTexto');
+      if (tabZonasTexto) tabZonasTexto.textContent = 'Zonas relevadas (' + ZONAS.length + ')';
+    }
+  }
+
+  function verificarAreasSinPoligono() {
+    if (!geojsonData) return;
+
+    const areasConSatisfaccion = [];
+    const vistos = new Set();
+
+    // 1. Áreas presentes en el DOM (#consulta-vecinal)
+    document.querySelectorAll('#consulta-vecinal .cv-area').forEach(el => {
+      const zId = el.dataset.zona || '';
+      const h3 = el.querySelector('h3');
+      const metaEl = el.querySelector('.cv-area-meta');
+      const nombre = h3 ? h3.textContent.trim() : ('Área ' + zId);
+      const mMatch = metaEl ? metaEl.textContent.match(/(\d+)\s+muestras/) : null;
+      const muestras = mMatch ? parseInt(mMatch[1], 10) : null;
+      if (!vistos.has(zId)) {
+        vistos.add(zId);
+        areasConSatisfaccion.push({ zonaId: zId, area: nombre, muestras: muestras });
+      }
+    });
+
+    // 2. Áreas presentes en datos/encuesta-social-agregada.json (incluye vista mapa.html)
+    if (agregadaData && Array.isArray(agregadaData.areas)) {
+      agregadaData.areas.forEach(a => {
+        const zId = String(a.zonaId);
+        if (!vistos.has(zId)) {
+          vistos.add(zId);
+          areasConSatisfaccion.push({
+            zonaId: zId,
+            area: a.area || a.barrioSheet || ('Área ' + zId),
+            muestras: a.muestras || null
+          });
+        }
+      });
+    }
+
+    const sinPoligono = areasConSatisfaccion.filter(a => !areaTienePoligonoEnMapa(a.zonaId, a.area));
+
+    // Marcar también visualmente en el encabezado de cada tarjeta de zona si no tiene polígono
+    document.querySelectorAll('#consulta-vecinal .cv-area').forEach(el => {
+      const zId = el.dataset.zona || '';
+      const h3 = el.querySelector('h3');
+      const nombre = h3 ? h3.textContent.trim() : '';
+      const faltaPoligono = !areaTienePoligonoEnMapa(zId, nombre);
+      let badgeSinPol = el.querySelector('.badge-sin-poligono');
+      if (faltaPoligono && h3 && !badgeSinPol) {
+        badgeSinPol = document.createElement('span');
+        badgeSinPol.className = 'estado estado--alerta badge-sin-poligono';
+        badgeSinPol.style.marginLeft = '8px';
+        badgeSinPol.textContent = 'Sin polígono en mapa';
+        h3.appendChild(badgeSinPol);
+      } else if (!faltaPoligono && badgeSinPol) {
+        badgeSinPol.remove();
+      }
+    });
+
+    const idsAviso = [
+      { box: 'avisoSinPoligono', txt: 'avisoSinPoligonoTexto' },
+      { box: 'avisoSinPoligonoMapa', txt: 'avisoSinPoligonoMapaTexto' }
+    ];
+
+    if (sinPoligono.length > 0) {
+      const detalleAreas = sinPoligono.map(a => {
+        return a.area + (a.muestras ? ' (' + fmtN(a.muestras) + ' muestras)' : '');
+      }).join(', ');
+
+      const mensaje = 'Hay datos de satisfacción cargados para ' +
+        (sinPoligono.length === 1 ? 'el área ' : 'las áreas ') +
+        detalleAreas +
+        ' sin un polígono correspondiente en el mapa. Sus indicadores de satisfacción (columnas AV-AZ de la Encuesta Social) están incorporados al monitor, pero resta asociar su delimitación cartográfica.';
+
+      idsAviso.forEach(item => {
+        const boxEl = document.getElementById(item.box);
+        const txtEl = document.getElementById(item.txt);
+        if (boxEl && txtEl) {
+          txtEl.textContent = mensaje;
+          boxEl.hidden = false;
+        }
+      });
+    } else {
+      idsAviso.forEach(item => {
+        const boxEl = document.getElementById(item.box);
+        if (boxEl) boxEl.hidden = true;
+      });
+    }
+  }
+
+  function sincronizarDatosTiempoReal() {
+    Promise.all([
+      fetch('datos/sectores-14-zonas.geojson', { cache: 'no-store' }).then(r => {
+        if (!r.ok) throw new Error('Error al cargar GeoJSON');
+        return r.json();
+      }),
+      fetch('datos/encuesta-social-agregada.json', { cache: 'no-store' }).then(r => {
+        if (!r.ok) throw new Error('Error al cargar datos agregados');
+        return r.json();
+      })
+    ])
+      .then(([geo, agregada]) => {
+        geojsonData = geo;
+        agregadaData = agregada;
+        ultimaHoraBuena = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+        const errBox = document.getElementById('avisoErrorSync');
+        if (errBox) errBox.hidden = true;
+
+        // Sincronizar estadísticas de áreas con polígono desde el agregado en tiempo real
+        if (geojsonData && Array.isArray(geojsonData.features) && agregadaData && Array.isArray(agregadaData.areas)) {
+          geojsonData.features.forEach(feat => {
+            const p = feat.properties || {};
+            const match = agregadaData.areas.find(a => String(a.zonaId) === String(p.id));
+            if (match && match.servicios) {
+              p.stats = p.stats || {};
+              p.stats.muestras = match.muestras;
+              p.stats.servicios = match.servicios;
+            }
+          });
+        }
+
+        integrarAreasAgregadas(agregadaData);
+        actualizarCapaMapa();
+        verificarAreasSinPoligono();
+      })
+      .catch(() => {
+        const errBox = document.getElementById('avisoErrorSync');
+        const errTxt = document.getElementById('avisoErrorSyncTexto');
+        if (errBox && errTxt && ultimaHoraBuena) {
+          errTxt.textContent = 'No se pudo actualizar la base agregada en el último intento. Se muestran los últimos datos válidos disponibles (última sincronización exitosa: ' + ultimaHoraBuena + ').';
+          errBox.hidden = false;
+        }
+      });
+  }
 
   function initTableroMapa() {
     const mapEl = document.getElementById('tableroMapa');
-    if (!mapEl || typeof L === 'undefined') return;
+    if (mapEl && typeof L !== 'undefined') {
+      const map = L.map('tableroMapa', {
+        zoomControl: true,
+        minZoom: 10,
+        maxZoom: 17
+      }).setView([-33.125, -64.35], 13);
 
-    const map = L.map('tableroMapa', {
-      zoomControl: true,
-      minZoom: 10,
-      maxZoom: 17
-    }).setView([-33.125, -64.35], 13);
+      window._tableroLeafletMap = map;
 
-    window._tableroLeafletMap = map;
+      // Mosaicos locales de Argenmap (IGN)
+      L.tileLayer('assets/mapa/{z}/{x}/{y}.png', {
+        minZoom: 10,
+        maxZoom: 17,
+        attribution: 'Mapa base: © Instituto Geográfico Nacional (Argenmap)'
+      }).addTo(map);
 
-    // Mosaicos locales de Argenmap (IGN)
-    L.tileLayer('assets/mapa/{z}/{x}/{y}.png', {
-      minZoom: 10,
-      maxZoom: 17,
-      attribution: 'Mapa base: © Instituto Geográfico Nacional (Argenmap)'
-    }).addTo(map);
-
-    fetch('datos/sectores-14-zonas.geojson')
-      .then(res => res.json())
-      .then(data => {
-        geojsonData = data;
-        actualizarCapaMapa();
-      })
-      .catch(() => {});
-
-    const svcSel = document.getElementById('mapaServicioSelect');
-    if (svcSel) {
-      svcSel.addEventListener('change', actualizarCapaMapa);
+      const svcSel = document.getElementById('mapaServicioSelect');
+      if (svcSel) {
+        svcSel.addEventListener('change', actualizarCapaMapa);
+      }
     }
+
+    sincronizarDatosTiempoReal();
+    // Actualización periódica cada 60 segundos (> 5s requeridos por revisar-tablero.sh)
+    setInterval(sincronizarDatosTiempoReal, 60000);
   }
 
   function getMetricValue(feature, metricKey) {

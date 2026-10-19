@@ -139,13 +139,25 @@
         </div>
       </div>
 
+      <!-- Aviso de Atención: Áreas con datos de satisfacción sin polígono en el mapa -->
+      <div class="aviso aviso--alerta" role="alert" id="avisoSinPoligono" hidden>
+        <span class="icono" aria-hidden="true">warning</span>
+        <p><strong>Atención</strong><span id="avisoSinPoligonoTexto"></span></p>
+      </div>
+
+      <!-- Aviso de respaldo si falla la actualización de datos -->
+      <div class="aviso aviso--grave" role="alert" id="avisoErrorSync" hidden>
+        <span class="icono" aria-hidden="true">error</span>
+        <p><strong>Error de sincronización</strong><span id="avisoErrorSyncTexto"></span></p>
+      </div>
+
       <!-- Botones de Navegación -->
       <div class="nav-botones" role="tablist" aria-label="Secciones del tablero">
         <button type="button" class="boton boton--primario" role="tab" id="tab-servicios" aria-controls="panel-servicios" aria-selected="true">
           <span class="icono" aria-hidden="true">construction</span> Servicios e Indicadores
         </button>
         <button type="button" class="boton boton--primario" role="tab" id="tab-zonas" aria-controls="panel-zonas" aria-selected="false" tabindex="-1">
-          <span class="icono" aria-hidden="true">forum</span> Zonas relevadas (15)
+          <span class="icono" aria-hidden="true">forum</span> <span id="tabZonasTexto">Zonas relevadas (15)</span>
         </button>
         <button type="button" class="boton boton--mapa" role="tab" id="tab-mapa" aria-controls="panel-mapa" aria-selected="false" tabindex="-1">
           <span class="icono" aria-hidden="true">map</span> Ver mapa
@@ -229,6 +241,11 @@
                 <span class="icono" aria-hidden="true">open_in_new</span> Pantalla completa
               </a>
             </div>
+          </div>
+
+          <div class="aviso aviso--alerta" role="alert" id="avisoSinPoligonoMapa" hidden>
+            <span class="icono" aria-hidden="true">warning</span>
+            <p><strong>Atención</strong><span id="avisoSinPoligonoMapaTexto"></span></p>
           </div>
 
           <div class="mapa-seccion">

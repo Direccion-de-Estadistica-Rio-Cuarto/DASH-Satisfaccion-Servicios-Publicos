@@ -1,7 +1,7 @@
 {
   "identificador": "dash-satisfaccion-servicios-publicos",
   "titulo": "Satisfacción con los Servicios Públicos Municipales",
-  "descripcion": "Monitor de percepción y aprobación ciudadana sobre los servicios públicos barriales (alumbrado, residuos, malezas, calles y riego) en 14 zonas de Río Cuarto mediante el Índice de Satisfacción Positiva (ISP Top-2 Box).",
+  "descripcion": "Monitor de percepción y aprobación ciudadana sobre los servicios públicos barriales (alumbrado, residuos, malezas, calles y riego) en Río Cuarto mediante el Índice de Satisfacción Positiva (ISP Top-2 Box).",
   "fecha_creacion": "2026-10-19",
   "tematica": "Servicios Públicos y Calidad de Vida Urbana",
   "autoria": [
@@ -11,13 +11,19 @@
   "contacto": "estadistica@riocuarto.gov.ar",
   "datasets": [
     {
-      "nombre": "Base Consolidada de Satisfacción de Servicios Públicos por Área",
+      "nombre": "Base Consolidada de Satisfacción de Servicios Públicos por Área (Consulta Vecinal y Encuesta Social)",
       "fuente": "Dirección de Estadística, Control de Calidad y Procesos (Encuesta Social y Consulta Vecinal)",
       "periodo": "2026-01 a 2026-10",
-      "actualizacion": "mensual"
+      "actualizacion": "continua"
     },
     {
-      "nombre": "Resumen Ejecutivo de Satisfacción de 14 Zonas Relevadas",
+      "nombre": "Agregado Barrial de Satisfacción de Servicios (Encuesta Social Hoja 1, columnas AV-AZ)",
+      "fuente": "Dirección de Estadística, Control de Calidad y Procesos — Gobierno de Río Cuarto",
+      "periodo": "2026-01 a 2026-10",
+      "actualizacion": "continua"
+    },
+    {
+      "nombre": "Cartografía de Sectores Barriales Relevados (15 Zonas)",
       "fuente": "Dirección de Estadística, Control de Calidad y Procesos",
       "periodo": "2026-01 a 2026-10",
       "actualizacion": "mensual"

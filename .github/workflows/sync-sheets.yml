@@ -1,0 +1,167 @@
+name: Sincronizar Encuesta Social (Agregado AV-AZ)
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sincronizar:
+    name: Actualizar datos agregados desde Google Sheets (sin PII)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Descargar y agregar columnas AV-AZ (descartando PII en memoria)
+        env:
+          SHEET_CSV_URL: ${{ secrets.GOOGLE_SHEETS_CSV_URL || vars.GOOGLE_SHEETS_CSV_URL }}
+        run: |
+          if [ -z "$SHEET_CSV_URL" ]; then
+            echo "Aviso: GOOGLE_SHEETS_CSV_URL no está configurado en Secrets/Variables del repositorio. Se mantiene datos/encuesta-social-agregada.json actual."
+            exit 0
+          fi
+          node -e '
+            const fs = require("fs");
+            const https = require("https");
+
+            function fetchText(url) {
+              return new Promise((resolve, reject) => {
+                https.get(url, res => {
+                  if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                    return resolve(fetchText(res.headers.location));
+                  }
+                  if (res.statusCode !== 200) return reject(new Error("HTTP " + res.statusCode));
+                  let data = "";
+                  res.on("data", chunk => data += chunk);
+                  res.on("end", () => resolve(data));
+                }).on("error", reject);
+              });
+            }
+
+            function parseCSV(text) {
+              const lines = [];
+              let row = [], cell = "", inQuotes = false;
+              for (let i = 0; i < text.length; i++) {
+                const c = text[i], next = text[i + 1];
+                if (c === "\"") {
+                  if (inQuotes && next === "\"") { cell += "\""; i++; }
+                  else inQuotes = !inQuotes;
+                } else if (c === "," && !inQuotes) {
+                  row.push(cell); cell = "";
+                } else if ((c === "\r" || c === "\n") && !inQuotes) {
+                  if (c === "\r" && next === "\n") i++;
+                  row.push(cell); cell = ""; lines.push(row); row = [];
+                } else cell += c;
+              }
+              if (cell || row.length) { row.push(cell); lines.push(row); }
+              return lines;
+            }
+
+            const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+            const BARRIO_TO_AREA = {
+              "San Martín": { zonaId: "5", area: "Área 5 — Bo. San Martín — Sector 3", month: 2, year: 2026 },
+              "Bimaco": { zonaId: "bimaco", area: "Bimaco", month: 3, year: 2026 },
+              "Nueva Argentina": { zonaId: "6", area: "Área 6 — Nueva Argentina", month: 4, year: 2026 },
+              "Jardín (Oeste)": { zonaId: "7", area: "Área 7 — Jardín (Oeste)", month: 5, year: 2026 },
+              "Pueblo Alberdi (Mi Lugar, Mi Sueño 2 y 3)": { zonaId: "8", area: "Área 8 — Pueblo Alberdi (Mi Lugar, Mi Sueño 2 y 3)", month: 6, year: 2026 },
+              "Goretti": { zonaId: "9", area: "Área 9 — Goretti", month: 6, year: 2026 },
+              "San Pantaleón": { zonaId: "10", area: "Área 10 — San Pantaleón", month: 7, year: 2026 },
+              "Quintitas Golf": { zonaId: "11", area: "Área 11 — Quintitas Golf", month: 7, year: 2026 },
+              "Alem": { zonaId: "12", area: "Área 12 — Bo. Alem", month: 8, year: 2026 },
+              "Jardín Norte": { zonaId: "13", area: "Área 13 — Bo. Jardín Norte", month: 9, year: 2026 },
+              "Industrial": { zonaId: "14", area: "Área 14 — Bo. Industrial", month: 10, year: 2026 },
+              "Lomitas de Oro": { zonaId: "15", area: "Área 15 — Lomitas de Oro", month: 10, year: 2026 }
+            };
+            const SERV_COLS = [
+              { key: "alumbrado", col: 47 },
+              { key: "residuos", col: 48 },
+              { key: "yuyos", col: 49 },
+              { key: "calle", col: 50 },
+              { key: "riego", col: 51 }
+            ];
+            function normalizeCat(val) {
+              const v = (val || "").trim().toLowerCase();
+              if (!v) return null;
+              if (v === "muy bien" || v === "muy bueno" || v === "muy buena") return "Muy bien";
+              if (v === "bien" || v === "bueno" || v === "buena") return "Bien";
+              if (v === "regular") return "Regular";
+              if (v === "mal" || v === "malo" || v === "mala") return "Mal";
+              if (v === "muy mal" || v === "muy malo" || v === "muy mala") return "Muy mal";
+              return "Ns/Nc";
+            }
+
+            (async () => {
+              const text = await fetchText(process.env.SHEET_CSV_URL);
+              const allRows = parseCSV(text);
+              const blocks = [];
+              let cur = null;
+              allRows.slice(1).forEach(r => {
+                const hasServ = SERV_COLS.some(sc => (r[sc.col] || "").trim() !== "");
+                if (!hasServ) return;
+                const barrio = (r[0] || "").trim();
+                if (!cur || cur.barrio !== barrio) {
+                  cur = { barrio, rows: [] };
+                  blocks.push(cur);
+                }
+                cur.rows.push(r);
+              });
+
+              const ORDER = ["Muy bien", "Bien", "Regular", "Mal", "Muy mal", "Ns/Nc"];
+              const areas = blocks.map((b, idx) => {
+                const mapped = BARRIO_TO_AREA[b.barrio] || { zonaId: "sheet-" + (idx + 1), area: b.barrio, month: 10, year: 2026 };
+                const muestras = b.rows.length;
+                const servicios = {};
+                SERV_COLS.forEach(sc => {
+                  const counts = { "Muy bien": 0, "Bien": 0, "Regular": 0, "Mal": 0, "Muy mal": 0, "Ns/Nc": 0 };
+                  b.rows.forEach(r => {
+                    const cat = normalizeCat(r[sc.col]);
+                    if (cat) counts[cat] = (counts[cat] || 0) + 1;
+                  });
+                  const valid = counts["Muy bien"] + counts["Bien"] + counts["Regular"] + counts["Mal"] + counts["Muy mal"];
+                  const pos = counts["Muy bien"] + counts["Bien"];
+                  const pct = valid > 0 ? Number(((pos / valid) * 100).toFixed(1)) : 0;
+                  const rawParts = ORDER.filter(k => counts[k] > 0).map(k => k + " " + counts[k]);
+                  servicios[sc.key] = { pct, validas: valid, muestras, rawNote: rawParts.join(" · ") };
+                });
+                const mesNombre = MESES[(mapped.month || 10) - 1] || "Octubre";
+                return {
+                  zonaId: mapped.zonaId,
+                  barrioSheet: b.barrio,
+                  area: mapped.area,
+                  month: mapped.month,
+                  year: mapped.year,
+                  muestras,
+                  meta: mesNombre + " " + mapped.year + " · " + muestras + " muestras recolectadas",
+                  servicios
+                };
+              });
+
+              const outPath = "datos/encuesta-social-agregada.json";
+              const payload = {
+                actualizado: new Date().toISOString(),
+                fuente: "Encuesta Social (Hoja 1, columnas AV-AZ) — Dirección de Estadística, Control de Calidad y Procesos",
+                totalAreasConSatisfaccion: areas.length,
+                areas
+              };
+              fs.writeFileSync(outPath, JSON.stringify(payload, null, 2), "utf8");
+            })();
+          '
+
+      - name: Publicar cambios si hay nuevos datos agregados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet datos/encuesta-social-agregada.json; then
+            git add datos/encuesta-social-agregada.json
+            git commit -m "chore(datos): actualizar agregado de satisfacción AV-AZ desde Google Sheets"
+            git push
+          fi
