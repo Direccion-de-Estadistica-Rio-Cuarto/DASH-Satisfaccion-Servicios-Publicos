@@ -26,7 +26,8 @@
     { id: '11', area: 'Área 11 — Quintitas Golf', month: 7 },
     { id: '12', area: 'Área 12 — Bo. Alem', month: 8 },
     { id: '13', area: 'Área 13 — Bo. Jardín Norte', month: 9 },
-    { id: '14', area: 'Área 14 — Bo. Industrial', month: 10 }
+    { id: '14', area: 'Área 14 — Bo. Industrial', month: 10 },
+    { id: '15', area: 'Área 15 — Lomitas de Oro', month: 10 }
   ];
 
   const SERVICE_ITEMS = [
