@@ -423,7 +423,7 @@
 
   // --- Pestañas de Navegación ----------------------------------------------
   function initPestanas() {
-    const tablist = document.querySelector('.pestanas[role="tablist"]');
+    const tablist = document.querySelector('[role="tablist"]');
     if (!tablist) return;
     const tabs = tablist.querySelectorAll('[role="tab"]');
     tabs.forEach(tab => {

@@ -238,7 +238,15 @@ p.raw-note {
   }
 }
 
-/* --- Grillas y Tarjetas de Servicios ------------------------------------- */
+/* --- Botones de Navegación y Grillas de Servicios ------------------------ */
+.nav-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
 .tile-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
